@@ -5,12 +5,71 @@ import tkinter.font as tkFont
 # ---------- DATA ----------
 info = {f'key{i}': f'value{i}' for i in range(1, 21)}
 
-# ---------- FUNCTIONS ----------
+PASSWORD = "12345"
+
+# ---------- UTILITY FUNCTIONS ----------
 def update_listbox(lb):
     lb.delete(0, tk.END)
     for key in info.keys():
         lb.insert(tk.END, key)
 
+def add_placeholder(entry, placeholder):
+    entry.insert(0, placeholder)
+    entry.config(fg="grey")
+    entry.is_placeholder = True
+
+    def on_focus_in(event):
+        if entry.is_placeholder:
+            entry.delete(0, tk.END)
+            entry.config(fg="black")
+            entry.is_placeholder = False
+
+    def on_focus_out(event):
+        if not entry.get():
+            entry.insert(0, placeholder)
+            entry.config(fg="grey")
+            entry.is_placeholder = True
+
+    entry.bind("<FocusIn>", on_focus_in)
+    entry.bind("<FocusOut>", on_focus_out)
+
+def add_placeholder_password(entry, placeholder):
+    entry.insert(0, placeholder)
+    entry.config(fg="grey", show="")
+    entry.is_placeholder = True
+
+    def on_focus_in(event):
+        if entry.is_placeholder:
+            entry.delete(0, tk.END)
+            entry.config(fg="black", show="*")
+            entry.is_placeholder = False
+
+    def on_focus_out(event):
+        if not entry.get():
+            entry.insert(0, placeholder)
+            entry.config(fg="grey", show="")
+            entry.is_placeholder = True
+
+    entry.bind("<FocusIn>", on_focus_in)
+    entry.bind("<FocusOut>", on_focus_out)
+
+def add_password_toggle(entry):
+    toggle_btn = tk.Button(entry.master, text="Show", width=8, font=("Arial", 10))
+    toggle_btn.pack(side=tk.RIGHT, padx=5)
+
+    def toggle():
+        if entry.is_placeholder:
+            return
+        if entry.cget('show') == '*':
+            entry.config(show='')
+            toggle_btn.config(text='Hide')
+        else:
+            entry.config(show='*')
+            toggle_btn.config(text='Show')
+
+    toggle_btn.config(command=toggle)
+
+# ---------- APP LOGIC FUNCTIONS ----------
 def on_select_view(event):
     selection = listbox_view.curselection()
     if selection:
@@ -75,68 +134,50 @@ def delete_selected_key():
     update_listbox(listbox_update)
     value_label_view.config(text="Value: ")
 
-def add_placeholder(entry, placeholder):
-    entry.insert(0, placeholder)
-    entry.config(fg="grey")
-    entry.is_placeholder = True
+# ---------- LOGIN SCREEN ----------
+def show_main_app():
+    login_frame.pack_forget()
+    app_frame.pack(fill=tk.BOTH, expand=True)
 
-    def on_focus_in(event):
-        if entry.is_placeholder:
-            entry.delete(0, tk.END)
-            entry.config(fg="black")
-            entry.is_placeholder = False
-
-    def on_focus_out(event):
-        if not entry.get():
-            entry.insert(0, placeholder)
-            entry.config(fg="grey")
-            entry.is_placeholder = True
-
-    entry.bind("<FocusIn>", on_focus_in)
-    entry.bind("<FocusOut>", on_focus_out)
-
-def add_placeholder_password(entry, placeholder):
-    entry.insert(0, placeholder)
-    entry.config(fg="grey", show="")
-    entry.is_placeholder = True
-
-    def on_focus_in(event):
-        if entry.is_placeholder:
-            entry.delete(0, tk.END)
-            entry.config(fg="black", show="*")
-            entry.is_placeholder = False
-
-    def on_focus_out(event):
-        if not entry.get():
-            entry.insert(0, placeholder)
-            entry.config(fg="grey", show="")
-            entry.is_placeholder = True
-
-    entry.bind("<FocusIn>", on_focus_in)
-    entry.bind("<FocusOut>", on_focus_out)
-
-def add_password_toggle(entry):
-    toggle_btn = tk.Button(entry.master, text="Show", width=8, font=("Arial", 10))
-    toggle_btn.pack(side=tk.RIGHT, padx=5)
-
-    def toggle():
-        if entry.is_placeholder:
-            return
-        if entry.cget('show') == '*':
-            entry.config(show='')
-            toggle_btn.config(text='Hide')
-        else:
-            entry.config(show='*')
-            toggle_btn.config(text='Show')
-
-    toggle_btn.config(command=toggle)
+def check_login():
+    pwd = login_entry.get().strip()
+    if pwd == PASSWORD:
+        show_main_app()
+    else:
+        login_feedback.config(text="wrong password", fg="red")
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
 root.title("Dictionary Manager")
+root.geometry("500x500")
 root.resizable(False, False)
 
-notebook = ttk.Notebook(root)
+root.bind_class("Button", "<Return>", lambda e: e.widget.invoke())
+
+# ---------- LOGIN FRAME ----------
+login_frame = tk.Frame(root)
+login_frame.pack(fill=tk.BOTH, expand=True)
+
+login_label = tk.Label(login_frame, text="Enter Password", font=("Arial", 14))
+login_label.pack(pady=20)
+
+frame_login_entry = tk.Frame(login_frame)
+frame_login_entry.pack(pady=10, fill=tk.X, padx=50)
+login_entry = tk.Entry(frame_login_entry, font=("Arial", 12))
+login_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(login_entry, "password")
+add_password_toggle(login_entry)
+
+login_button = tk.Button(login_frame, text="Login", font=("Arial", 12), command=check_login)
+login_button.pack(pady=10)
+
+login_feedback = tk.Label(login_frame, text="", font=("Arial", 12))
+login_feedback.pack()
+
+# ---------- MAIN APP FRAME ----------
+app_frame = tk.Frame(root)
+
+notebook = ttk.Notebook(app_frame)
 notebook.pack(fill=tk.BOTH, expand=True)
 
 screen_width = root.winfo_screenwidth()
@@ -149,7 +190,7 @@ target_px_height = int(screen_height * 0.4)
 listbox_width = target_px_width // char_width
 listbox_height = target_px_height // char_height
 
-# ---------- TAB 1: VIEW ----------
+# ---------------TAB 1: VIEW--------------------
 tab1 = ttk.Frame(notebook)
 notebook.add(tab1, text="View")
 
@@ -170,7 +211,7 @@ value_label_view.pack(pady=10)
 
 update_listbox(listbox_view)
 
-# ---------- TAB 2: ADD ----------
+# ---------------TAB 2: ADD--------------------
 tab2 = ttk.Frame(notebook)
 notebook.add(tab2, text="Add")
 
@@ -198,7 +239,7 @@ save_button_add.pack(pady=5)
 feedback_label_add = tk.Label(tab2, text="", font=("Arial",12))
 feedback_label_add.pack(pady=5)
 
-# ---------- TAB 3: UPDATE ----------
+# ---------------TAB 3: UPDATE--------------------
 tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Update")
 
