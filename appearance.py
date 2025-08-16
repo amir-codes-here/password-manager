@@ -7,6 +7,10 @@ info = {f'key{i}': f'value{i}' for i in range(1, 21)}
 
 PASSWORD = "12345"
 
+font_big = ("Arial", 14)
+font_medium = ("Arial", 12)
+font_small = ("Arial", 10)
+
 # ---------- UTILITY FUNCTIONS ----------
 def update_listbox(lb):
     lb.delete(0, tk.END)
@@ -54,7 +58,7 @@ def add_placeholder_password(entry, placeholder):
     entry.bind("<FocusOut>", on_focus_out)
 
 def add_password_toggle(entry):
-    toggle_btn = tk.Button(entry.master, text="Show", width=8, font=("Arial", 10))
+    toggle_btn = tk.Button(entry.master, text="Show", width=8, font=font_small)
     toggle_btn.pack(side=tk.RIGHT, padx=5)
 
     def toggle():
@@ -165,20 +169,20 @@ root.bind_class("Button", "<Return>", lambda e: e.widget.invoke())
 login_frame = tk.Frame(root)
 login_frame.pack(fill=tk.BOTH, expand=True)
 
-login_label = tk.Label(login_frame, text="Enter Password", font=("Arial", 14))
+login_label = tk.Label(login_frame, text="Enter Password", font=font_big)
 login_label.pack(pady=20)
 
 frame_login_entry = tk.Frame(login_frame)
 frame_login_entry.pack(pady=10, fill=tk.X, padx=50)
-login_entry = tk.Entry(frame_login_entry, font=("Arial", 12))
+login_entry = tk.Entry(frame_login_entry, font=font_medium)
 login_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(login_entry, "password")
 add_password_toggle(login_entry)
 
-login_button = tk.Button(login_frame, text="Login", font=("Arial", 12), command=check_login)
+login_button = tk.Button(login_frame, text="Login", font=font_medium, command=check_login)
 login_button.pack(pady=10)
 
-login_feedback = tk.Label(login_frame, text="", font=("Arial", 12))
+login_feedback = tk.Label(login_frame, text="", font=font_medium)
 login_feedback.pack()
 
 # ---------- MAIN APP FRAME ----------
@@ -189,7 +193,7 @@ notebook.pack(fill=tk.BOTH, expand=True)
 
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
-font_obj = tkFont.Font(family="Arial", size=14)
+font_obj = tkFont.Font(family=font_big[0], size=font_big[1])
 char_width = font_obj.measure("0")
 char_height = font_obj.metrics("linespace")
 target_px_width = int(screen_width * 0.3)
@@ -205,30 +209,33 @@ frame_view = tk.Frame(tab1)
 frame_view.pack(pady=10)
 scrollbar_view = tk.Scrollbar(frame_view)
 scrollbar_view.pack(side=tk.RIGHT, fill=tk.Y)
-listbox_view = tk.Listbox(frame_view, yscrollcommand=scrollbar_view.set, font=("Arial",14), width=listbox_width, height=listbox_height)
+listbox_view = tk.Listbox(frame_view, yscrollcommand=scrollbar_view.set,
+                          font=font_big, width=listbox_width, height=listbox_height)
 listbox_view.pack(side=tk.LEFT, fill=tk.BOTH)
 scrollbar_view.config(command=listbox_view.yview)
 listbox_view.bind("<<ListboxSelect>>", on_select_view)
 
-delete_button = tk.Button(tab1, text="Delete", fg="white", bg="red", font=("Arial",12), command=delete_selected_key)
+delete_button = tk.Button(tab1, text="Delete", fg="white", bg="red",
+                          font=font_medium, command=delete_selected_key)
 delete_button.pack(pady=5)
 
 frame_value_view = tk.Frame(tab1)
 frame_value_view.pack(fill="x", padx=10, pady=10)
 
-label_value_view = tk.Label(frame_value_view, text="Value: ", font=("Arial",12))
+label_value_view = tk.Label(frame_value_view, text="Value: ", font=font_small)
 label_value_view.pack(side="left")
 
 value_var_view = tk.StringVar()
 value_entry_view = tk.Entry(
     frame_value_view,
     textvariable=value_var_view,
-    font=("Arial",12),
+    font=font_medium,
     state="readonly"
 )
 value_entry_view.pack(side="left", fill="x", expand=True, padx=(5,5))
 
-copy_button = tk.Button(frame_value_view, text="Copy", font=("Arial", 11), command=copy_selected_value_view)
+copy_button = tk.Button(frame_value_view, text="Copy",
+                        font=font_small, command=copy_selected_value_view)
 copy_button.pack(side="right", padx=(5,0))
 
 update_listbox(listbox_view)
@@ -237,31 +244,31 @@ update_listbox(listbox_view)
 tab2 = ttk.Frame(notebook)
 notebook.add(tab2, text="Add")
 
-label_add = tk.Label(tab2, text="Add new password", font=("Arial",12))
+label_add = tk.Label(tab2, text="Add new password", font=font_medium)
 label_add.pack(pady=5)
 
-key_entry = tk.Entry(tab2, font=("Arial",12))
+key_entry = tk.Entry(tab2, font=font_medium)
 key_entry.pack(fill=tk.X, padx=5, pady=5)
 add_placeholder(key_entry, "key")
 
 frame_value = tk.Frame(tab2)
 frame_value.pack(fill=tk.X, padx=5, pady=5)
-value_entry = tk.Entry(frame_value, font=("Arial",12))
+value_entry = tk.Entry(frame_value, font=font_medium)
 value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(value_entry, "value")
 add_password_toggle(value_entry)
 
 frame_repeat = tk.Frame(tab2)
 frame_repeat.pack(fill=tk.X, padx=5, pady=5)
-repeat_entry = tk.Entry(frame_repeat, font=("Arial",12))
+repeat_entry = tk.Entry(frame_repeat, font=font_medium)
 repeat_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_entry, "repeat value")
 add_password_toggle(repeat_entry)
 
-save_button_add = tk.Button(tab2, text="Save", font=("Arial",12), command=save_new_info)
+save_button_add = tk.Button(tab2, text="Save", font=font_medium, command=save_new_info)
 save_button_add.pack(pady=5)
 
-feedback_label_add = tk.Label(tab2, text="", font=("Arial",12))
+feedback_label_add = tk.Label(tab2, text="", font=font_medium)
 feedback_label_add.pack(pady=5)
 
 # ---------------TAB 3: UPDATE--------------------
@@ -272,61 +279,62 @@ frame_update = tk.Frame(tab3)
 frame_update.pack(pady=10)
 scrollbar_update = tk.Scrollbar(frame_update)
 scrollbar_update.pack(side=tk.RIGHT, fill=tk.Y)
-listbox_update = tk.Listbox(frame_update, yscrollcommand=scrollbar_update.set, font=("Arial",14), width=listbox_width, height=listbox_height//2)
+listbox_update = tk.Listbox(frame_update, yscrollcommand=scrollbar_update.set,
+                            font=font_big, width=listbox_width, height=listbox_height//2)
 listbox_update.pack(side=tk.LEFT, fill=tk.BOTH)
 scrollbar_update.config(command=listbox_update.yview)
 listbox_update.bind("<<ListboxSelect>>", on_select_update)
 update_listbox(listbox_update)
 
-current_value_label = tk.Label(tab3, text="Current Value: ", font=("Arial",12))
+current_value_label = tk.Label(tab3, text="Current Value: ", font=font_medium)
 current_value_label.pack(pady=5)
 
 frame_new_value = tk.Frame(tab3)
 frame_new_value.pack(fill=tk.X, padx=5, pady=5)
-new_value_entry = tk.Entry(frame_new_value, font=("Arial",12))
+new_value_entry = tk.Entry(frame_new_value, font=font_medium)
 new_value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(new_value_entry, "new value")
 add_password_toggle(new_value_entry)
 
 frame_repeat_new = tk.Frame(tab3)
 frame_repeat_new.pack(fill=tk.X, padx=5, pady=5)
-repeat_value_entry = tk.Entry(frame_repeat_new, font=("Arial",12))
+repeat_value_entry = tk.Entry(frame_repeat_new, font=font_medium)
 repeat_value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_value_entry, "new value repeat")
 add_password_toggle(repeat_value_entry)
 
-save_button_update = tk.Button(tab3, text="Save", font=("Arial",12), command=save_updated_value)
+save_button_update = tk.Button(tab3, text="Save", font=font_medium, command=save_updated_value)
 save_button_update.pack(pady=5)
 
-feedback_label_update = tk.Label(tab3, text="", font=("Arial",12))
+feedback_label_update = tk.Label(tab3, text="", font=font_medium)
 feedback_label_update.pack(pady=5)
 
 # --------------------TAB 4: SETTINGS------------------
 tab4 = ttk.Frame(notebook)
 notebook.add(tab4, text="Settings")
 
-label_settings = tk.Label(tab4, text="Set new password for the app", font=("Arial",12))
+label_settings = tk.Label(tab4, text="Set new password for the app", font=font_medium)
 label_settings.pack(pady=5)
 
 frame_new_app_password = tk.Frame(tab4)
 frame_new_app_password.pack(fill=tk.X, padx=5, pady=5)
-new_app_password_entry = tk.Entry(frame_new_app_password, font=("Arial",12))
+new_app_password_entry = tk.Entry(frame_new_app_password, font=font_medium)
 new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(new_app_password_entry, "new password")
 add_password_toggle(new_app_password_entry)
 
 frame_new_app_password_repeat = tk.Frame(tab4)
 frame_new_app_password_repeat.pack(fill=tk.X, padx=5, pady=5)
-repeat_new_app_password_entry = tk.Entry(frame_new_app_password_repeat, font=("Arial",12))
+repeat_new_app_password_entry = tk.Entry(frame_new_app_password_repeat, font=font_medium)
 repeat_new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_new_app_password_entry, "repeat new password")
 add_password_toggle(repeat_new_app_password_entry)
 
 # todo: set a command for save button
-save_button_settings = tk.Button(tab4, text="Save", font=("Arial",12))
+save_button_settings = tk.Button(tab4, text="Save", font=font_medium)
 save_button_settings.pack(pady=5)
 
-feedback_label_settings = tk.Label(tab4, text="", font=("Arial",12))
+feedback_label_settings = tk.Label(tab4, text="", font=font_medium)
 feedback_label_settings.pack(pady=5)
 
 
