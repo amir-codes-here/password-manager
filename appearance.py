@@ -74,9 +74,9 @@ def on_select_view(event):
     selection = listbox_view.curselection()
     if selection:
         key = listbox_view.get(selection[0])
-        value_label_view.config(text=f"Value: {info[key]}")
+        value_var_view.set(info[key])
     else:
-        value_label_view.config(text="Value: ")
+        value_var_view.set("")
 
 def on_select_update(event):
     selection = listbox_update.curselection()
@@ -206,8 +206,30 @@ listbox_view.bind("<<ListboxSelect>>", on_select_view)
 delete_button = tk.Button(tab1, text="Delete", fg="white", bg="red", font=("Arial",12), command=delete_selected_key)
 delete_button.pack(pady=5)
 
-value_label_view = tk.Label(tab1, text="Value: ", font=("Arial",12))
-value_label_view.pack(pady=10)
+frame_value_view = tk.Frame(tab1)
+frame_value_view.pack(fill="x", padx=10, pady=10)
+
+label_value_view = tk.Label(frame_value_view, text="Value: ", font=("Arial",12))
+label_value_view.pack(side="left")
+
+value_var_view = tk.StringVar()
+value_entry_view = tk.Entry(
+    frame_value_view,
+    textvariable=value_var_view,
+    font=("Arial",12),
+    state="readonly"
+)
+value_entry_view.pack(side="left", fill="x", expand=True, padx=(5,5))
+
+def copy_value():
+    value = value_var_view.get()
+    if value:  # only copy if not empty
+        root.clipboard_clear()
+        root.clipboard_append(value)
+        root.update()  # keep clipboard after closing app
+
+copy_button = tk.Button(frame_value_view, text="Copy", font=("Arial", 10), command=copy_value)
+copy_button.pack(side="right", padx=(5,0))
 
 update_listbox(listbox_view)
 
