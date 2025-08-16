@@ -133,7 +133,7 @@ def delete_selected_key():
     if not selection:
         return
     key = listbox_view.get(selection[0])
-    confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete '{key}'?")
+    confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete '{key}'?\nThis action can not be reversed.")
     if not confirm:
         return
     del info[key]
@@ -237,6 +237,9 @@ update_listbox(listbox_view)
 tab2 = ttk.Frame(notebook)
 notebook.add(tab2, text="Add")
 
+label_add = tk.Label(tab2, text="Add new password", font=("Arial",12))
+label_add.pack(pady=5)
+
 key_entry = tk.Entry(tab2, font=("Arial",12))
 key_entry.pack(fill=tk.X, padx=5, pady=5)
 add_placeholder(key_entry, "key")
@@ -297,5 +300,34 @@ save_button_update.pack(pady=5)
 
 feedback_label_update = tk.Label(tab3, text="", font=("Arial",12))
 feedback_label_update.pack(pady=5)
+
+# --------------------TAB 4: SETTINGS------------------
+tab4 = ttk.Frame(notebook)
+notebook.add(tab4, text="Settings")
+
+label_settings = tk.Label(tab4, text="Set new password for the app", font=("Arial",12))
+label_settings.pack(pady=5)
+
+frame_new_app_password = tk.Frame(tab4)
+frame_new_app_password.pack(fill=tk.X, padx=5, pady=5)
+new_app_password_entry = tk.Entry(frame_new_app_password, font=("Arial",12))
+new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(new_app_password_entry, "new password")
+add_password_toggle(new_app_password_entry)
+
+frame_new_app_password_repeat = tk.Frame(tab4)
+frame_new_app_password_repeat.pack(fill=tk.X, padx=5, pady=5)
+repeat_new_app_password_entry = tk.Entry(frame_new_app_password_repeat, font=("Arial",12))
+repeat_new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(repeat_new_app_password_entry, "repeat new password")
+add_password_toggle(repeat_new_app_password_entry)
+
+# todo: set a command for save button
+save_button_settings = tk.Button(tab4, text="Save", font=("Arial",12))
+save_button_settings.pack(pady=5)
+
+feedback_label_settings = tk.Label(tab4, text="", font=("Arial",12))
+feedback_label_settings.pack(pady=5)
+
 
 root.mainloop()
