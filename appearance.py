@@ -78,6 +78,13 @@ def on_select_view(event):
     else:
         value_var_view.set("")
 
+def copy_selected_value_view():
+    value = value_var_view.get()
+    if value:
+        root.clipboard_clear()
+        root.clipboard_append(value)
+        root.update()
+
 def on_select_update(event):
     selection = listbox_update.curselection()
     if selection:
@@ -132,7 +139,7 @@ def delete_selected_key():
     del info[key]
     update_listbox(listbox_view)
     update_listbox(listbox_update)
-    value_label_view.config(text="Value: ")
+    value_var_view.set("")
 
 # ---------- LOGIN SCREEN ----------
 def show_main_app():
@@ -221,14 +228,7 @@ value_entry_view = tk.Entry(
 )
 value_entry_view.pack(side="left", fill="x", expand=True, padx=(5,5))
 
-def copy_value():
-    value = value_var_view.get()
-    if value:  # only copy if not empty
-        root.clipboard_clear()
-        root.clipboard_append(value)
-        root.update()  # keep clipboard after closing app
-
-copy_button = tk.Button(frame_value_view, text="Copy", font=("Arial", 10), command=copy_value)
+copy_button = tk.Button(frame_value_view, text="Copy", font=("Arial", 11), command=copy_selected_value_view)
 copy_button.pack(side="right", padx=(5,0))
 
 update_listbox(listbox_view)
