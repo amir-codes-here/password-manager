@@ -57,7 +57,7 @@ def add_placeholder_password(entry, placeholder):
     entry.bind("<FocusIn>", on_focus_in)
     entry.bind("<FocusOut>", on_focus_out)
 
-def add_password_toggle(entry):
+def add_show_hide_toggle(entry):
     toggle_btn = tk.Button(entry.master, text="Show", width=8, font=font_small)
     toggle_btn.pack(side=tk.RIGHT, padx=5)
 
@@ -74,76 +74,76 @@ def add_password_toggle(entry):
     toggle_btn.config(command=toggle)
 
 # ---------- APP LOGIC FUNCTIONS ----------
-def on_select_view(event):
-    selection = listbox_view.curselection()
+def on_listbox_key_select__view(event):
+    selection = listbox__view.curselection()
     if selection:
-        key = listbox_view.get(selection[0])
-        value_var_view.set(info[key])
+        key = listbox__view.get(selection[0])
+        password_var__view.set(info[key])
     else:
-        value_var_view.set("")
+        password_var__view.set("")
 
-def copy_selected_value_view():
-    value = value_var_view.get()
+def copy_selected_password__view():
+    value = password_var__view.get()
     if value:
         root.clipboard_clear()
         root.clipboard_append(value)
         root.update()
 
-def on_select_update(event):
-    selection = listbox_update.curselection()
+def on_listbox_key_select__update(event):
+    selection = listbox__update.curselection()
     if selection:
-        key = listbox_update.get(selection[0])
-        current_value_label.config(text=f"Current Value: {info[key]}")
+        key = listbox__update.get(selection[0])
+        current_password_label__update.config(text=f"Current Value: {info[key]}")
     else:
-        current_value_label.config(text="Current Value: ")
+        current_password_label__update.config(text="Current Value: ")
 
-def save_new_info():
-    k = key_entry.get().strip()
-    v = value_entry.get().strip()
-    rv = repeat_entry.get().strip()
+def add_new_password():
+    k = key_entry__add.get().strip()
+    v = password_entry__add.get().strip()
+    rv = repeat_entry__add.get().strip()
     if not k or not v or not rv:
-        feedback_label_add.config(text="Please fill all fields", fg="red")
+        feedback_label__add.config(text="Please fill all fields", fg="red")
         return
     if v != rv:
-        feedback_label_add.config(text="Values do not match", fg="red")
+        feedback_label__add.config(text="Values do not match", fg="red")
         return
     info[k] = v
-    feedback_label_add.config(text="New info saved", fg="green")
-    update_listbox(listbox_view)
-    update_listbox(listbox_update)
+    feedback_label__add.config(text="New info saved", fg="green")
+    update_listbox(listbox__view)
+    update_listbox(listbox__update)
 
-def save_updated_value():
-    selection = listbox_update.curselection()
+def save_updated_password():
+    selection = listbox__update.curselection()
     if not selection:
-        feedback_label_update.config(text="Please select a key", fg="red")
+        feedback_label__update.config(text="Please select a key", fg="red")
         return
-    new_val = new_value_entry.get().strip()
-    repeat_val = repeat_value_entry.get().strip()
+    new_val = new_password_entry__update.get().strip()
+    repeat_val = repeat_password_entry__update.get().strip()
     if not new_val or not repeat_val:
-        feedback_label_update.config(text="Please fill all fields", fg="red")
+        feedback_label__update.config(text="Please fill all fields", fg="red")
         return
     if new_val != repeat_val:
-        feedback_label_update.config(text="Values do not match", fg="red")
+        feedback_label__update.config(text="Values do not match", fg="red")
         return
-    key = listbox_update.get(selection[0])
+    key = listbox__update.get(selection[0])
     info[key] = new_val
-    feedback_label_update.config(text="Updated successfully", fg="green")
-    update_listbox(listbox_view)
-    update_listbox(listbox_update)
-    current_value_label.config(text=f"Current Value: {new_val}")
+    feedback_label__update.config(text="Updated successfully", fg="green")
+    update_listbox(listbox__view)
+    update_listbox(listbox__update)
+    current_password_label__update.config(text=f"Current Value: {new_val}")
 
 def delete_selected_key():
-    selection = listbox_view.curselection()
+    selection = listbox__view.curselection()
     if not selection:
         return
-    key = listbox_view.get(selection[0])
+    key = listbox__view.get(selection[0])
     confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete '{key}'?\nThis action can not be reversed.")
     if not confirm:
         return
     del info[key]
-    update_listbox(listbox_view)
-    update_listbox(listbox_update)
-    value_var_view.set("")
+    update_listbox(listbox__view)
+    update_listbox(listbox__update)
+    password_var__view.set("")
 
 # ---------- LOGIN SCREEN ----------
 def show_main_app():
@@ -151,15 +151,15 @@ def show_main_app():
     app_frame.pack(fill=tk.BOTH, expand=True)
 
 def check_login():
-    pwd = login_entry.get().strip()
+    pwd = password_entry__login.get().strip()
     if pwd == PASSWORD:
         show_main_app()
     else:
-        login_feedback.config(text="wrong password", fg="red")
+        feedback_label__login.config(text="wrong password", fg="red")
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
-root.title("Dictionary Manager")
+root.title("Password Manager")
 root.geometry("500x500")
 root.resizable(False, False)
 
@@ -169,21 +169,21 @@ root.bind_class("Button", "<Return>", lambda e: e.widget.invoke())
 login_frame = tk.Frame(root)
 login_frame.pack(fill=tk.BOTH, expand=True)
 
-login_label = tk.Label(login_frame, text="Enter Password", font=font_big)
-login_label.pack(pady=20)
+label__login = tk.Label(login_frame, text="Enter Password", font=font_big)
+label__login.pack(pady=20)
 
-frame_login_entry = tk.Frame(login_frame)
-frame_login_entry.pack(pady=10, fill=tk.X, padx=50)
-login_entry = tk.Entry(frame_login_entry, font=font_medium)
-login_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(login_entry, "password")
-add_password_toggle(login_entry)
+password_entry_frame__login = tk.Frame(login_frame)
+password_entry_frame__login.pack(pady=10, fill=tk.X, padx=50)
+password_entry__login = tk.Entry(password_entry_frame__login, font=font_medium)
+password_entry__login.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(password_entry__login, "password")
+add_show_hide_toggle(password_entry__login)
 
 login_button = tk.Button(login_frame, text="Login", font=font_medium, command=check_login)
 login_button.pack(pady=10)
 
-login_feedback = tk.Label(login_frame, text="", font=font_medium)
-login_feedback.pack()
+feedback_label__login = tk.Label(login_frame, text="", font=font_medium)
+feedback_label__login.pack()
 
 # ---------- MAIN APP FRAME ----------
 app_frame = tk.Frame(root)
@@ -205,137 +205,137 @@ listbox_height = target_px_height // char_height
 tab1 = ttk.Frame(notebook)
 notebook.add(tab1, text="View")
 
-frame_view = tk.Frame(tab1)
-frame_view.pack(pady=10)
-scrollbar_view = tk.Scrollbar(frame_view)
-scrollbar_view.pack(side=tk.RIGHT, fill=tk.Y)
-listbox_view = tk.Listbox(frame_view, yscrollcommand=scrollbar_view.set,
+frame__view = tk.Frame(tab1)
+frame__view.pack(pady=10)
+scrollbar__view = tk.Scrollbar(frame__view)
+scrollbar__view.pack(side=tk.RIGHT, fill=tk.Y)
+listbox__view = tk.Listbox(frame__view, yscrollcommand=scrollbar__view.set,
                           font=font_big, width=listbox_width, height=listbox_height)
-listbox_view.pack(side=tk.LEFT, fill=tk.BOTH)
-scrollbar_view.config(command=listbox_view.yview)
-listbox_view.bind("<<ListboxSelect>>", on_select_view)
+listbox__view.pack(side=tk.LEFT, fill=tk.BOTH)
+scrollbar__view.config(command=listbox__view.yview)
+listbox__view.bind("<<ListboxSelect>>", on_listbox_key_select__view)
 
-delete_button = tk.Button(tab1, text="Delete", fg="white", bg="red",
+delete_button__view = tk.Button(tab1, text="Delete", fg="white", bg="red",
                           font=font_medium, command=delete_selected_key)
-delete_button.pack(pady=5)
+delete_button__view.pack(pady=5)
 
-frame_value_view = tk.Frame(tab1)
-frame_value_view.pack(fill="x", padx=10, pady=10)
+show_password_frame__view = tk.Frame(tab1)
+show_password_frame__view.pack(fill="x", padx=10, pady=10)
 
-label_value_view = tk.Label(frame_value_view, text="Value: ", font=font_small)
-label_value_view.pack(side="left")
+password_label__view = tk.Label(show_password_frame__view, text="Password: ", font=font_small)
+password_label__view.pack(side="left")
 
-value_var_view = tk.StringVar()
-value_entry_view = tk.Entry(
-    frame_value_view,
-    textvariable=value_var_view,
+password_var__view = tk.StringVar()
+password_entry__view = tk.Entry(
+    show_password_frame__view,
+    textvariable=password_var__view,
     font=font_medium,
     state="readonly"
 )
-value_entry_view.pack(side="left", fill="x", expand=True, padx=(5,5))
+password_entry__view.pack(side="left", fill="x", expand=True, padx=(5,5))
 
-copy_button = tk.Button(frame_value_view, text="Copy",
-                        font=font_small, command=copy_selected_value_view)
-copy_button.pack(side="right", padx=(5,0))
+copy_button__view = tk.Button(show_password_frame__view, text="Copy",
+                        font=font_small, command=copy_selected_password__view)
+copy_button__view.pack(side="right", padx=(5,0))
 
-update_listbox(listbox_view)
+update_listbox(listbox__view)
 
 # ---------------TAB 2: ADD--------------------
 tab2 = ttk.Frame(notebook)
 notebook.add(tab2, text="Add")
 
-label_add = tk.Label(tab2, text="Add new password", font=font_medium)
-label_add.pack(pady=5)
+label__add = tk.Label(tab2, text="Add new password", font=font_medium)
+label__add.pack(pady=5)
 
-key_entry = tk.Entry(tab2, font=font_medium)
-key_entry.pack(fill=tk.X, padx=5, pady=5)
-add_placeholder(key_entry, "key")
+key_entry__add = tk.Entry(tab2, font=font_medium)
+key_entry__add.pack(fill=tk.X, padx=5, pady=5)
+add_placeholder(key_entry__add, "key")
 
-frame_value = tk.Frame(tab2)
-frame_value.pack(fill=tk.X, padx=5, pady=5)
-value_entry = tk.Entry(frame_value, font=font_medium)
-value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(value_entry, "value")
-add_password_toggle(value_entry)
+password_entry_frame__add = tk.Frame(tab2)
+password_entry_frame__add.pack(fill=tk.X, padx=5, pady=5)
+password_entry__add = tk.Entry(password_entry_frame__add, font=font_medium)
+password_entry__add.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(password_entry__add, "value")
+add_show_hide_toggle(password_entry__add)
 
-frame_repeat = tk.Frame(tab2)
-frame_repeat.pack(fill=tk.X, padx=5, pady=5)
-repeat_entry = tk.Entry(frame_repeat, font=font_medium)
-repeat_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(repeat_entry, "repeat value")
-add_password_toggle(repeat_entry)
+repeat_entry_frame__add = tk.Frame(tab2)
+repeat_entry_frame__add.pack(fill=tk.X, padx=5, pady=5)
+repeat_entry__add = tk.Entry(repeat_entry_frame__add, font=font_medium)
+repeat_entry__add.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(repeat_entry__add, "repeat value")
+add_show_hide_toggle(repeat_entry__add)
 
-save_button_add = tk.Button(tab2, text="Save", font=font_medium, command=save_new_info)
-save_button_add.pack(pady=5)
+save_button__add = tk.Button(tab2, text="Save", font=font_medium, command=add_new_password)
+save_button__add.pack(pady=5)
 
-feedback_label_add = tk.Label(tab2, text="", font=font_medium)
-feedback_label_add.pack(pady=5)
+feedback_label__add = tk.Label(tab2, text="", font=font_medium)
+feedback_label__add.pack(pady=5)
 
 # ---------------TAB 3: UPDATE--------------------
 tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Update")
 
-frame_update = tk.Frame(tab3)
-frame_update.pack(pady=10)
-scrollbar_update = tk.Scrollbar(frame_update)
-scrollbar_update.pack(side=tk.RIGHT, fill=tk.Y)
-listbox_update = tk.Listbox(frame_update, yscrollcommand=scrollbar_update.set,
+frame__update = tk.Frame(tab3)
+frame__update.pack(pady=10)
+scrollbar__update = tk.Scrollbar(frame__update)
+scrollbar__update.pack(side=tk.RIGHT, fill=tk.Y)
+listbox__update = tk.Listbox(frame__update, yscrollcommand=scrollbar__update.set,
                             font=font_big, width=listbox_width, height=listbox_height//2)
-listbox_update.pack(side=tk.LEFT, fill=tk.BOTH)
-scrollbar_update.config(command=listbox_update.yview)
-listbox_update.bind("<<ListboxSelect>>", on_select_update)
-update_listbox(listbox_update)
+listbox__update.pack(side=tk.LEFT, fill=tk.BOTH)
+scrollbar__update.config(command=listbox__update.yview)
+listbox__update.bind("<<ListboxSelect>>", on_listbox_key_select__update)
+update_listbox(listbox__update)
 
-current_value_label = tk.Label(tab3, text="Current Value: ", font=font_medium)
-current_value_label.pack(pady=5)
+current_password_label__update = tk.Label(tab3, text="Current Password: ", font=font_medium)
+current_password_label__update.pack(pady=5)
 
-frame_new_value = tk.Frame(tab3)
-frame_new_value.pack(fill=tk.X, padx=5, pady=5)
-new_value_entry = tk.Entry(frame_new_value, font=font_medium)
-new_value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(new_value_entry, "new value")
-add_password_toggle(new_value_entry)
+new_password_entry_frame__update = tk.Frame(tab3)
+new_password_entry_frame__update.pack(fill=tk.X, padx=5, pady=5)
+new_password_entry__update = tk.Entry(new_password_entry_frame__update, font=font_medium)
+new_password_entry__update.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(new_password_entry__update, "new password")
+add_show_hide_toggle(new_password_entry__update)
 
-frame_repeat_new = tk.Frame(tab3)
-frame_repeat_new.pack(fill=tk.X, padx=5, pady=5)
-repeat_value_entry = tk.Entry(frame_repeat_new, font=font_medium)
-repeat_value_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(repeat_value_entry, "new value repeat")
-add_password_toggle(repeat_value_entry)
+repeat_entry_frame__update = tk.Frame(tab3)
+repeat_entry_frame__update.pack(fill=tk.X, padx=5, pady=5)
+repeat_password_entry__update = tk.Entry(repeat_entry_frame__update, font=font_medium)
+repeat_password_entry__update.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(repeat_password_entry__update, "repeat new password")
+add_show_hide_toggle(repeat_password_entry__update)
 
-save_button_update = tk.Button(tab3, text="Save", font=font_medium, command=save_updated_value)
-save_button_update.pack(pady=5)
+save_button__update = tk.Button(tab3, text="Save", font=font_medium, command=save_updated_password)
+save_button__update.pack(pady=5)
 
-feedback_label_update = tk.Label(tab3, text="", font=font_medium)
-feedback_label_update.pack(pady=5)
+feedback_label__update = tk.Label(tab3, text="", font=font_medium)
+feedback_label__update.pack(pady=5)
 
 # --------------------TAB 4: SETTINGS------------------
 tab4 = ttk.Frame(notebook)
 notebook.add(tab4, text="Settings")
 
-label_settings = tk.Label(tab4, text="Set new password for the app", font=font_medium)
-label_settings.pack(pady=5)
+label__settings = tk.Label(tab4, text="Set new password for the app", font=font_medium)
+label__settings.pack(pady=5)
 
-frame_new_app_password = tk.Frame(tab4)
-frame_new_app_password.pack(fill=tk.X, padx=5, pady=5)
-new_app_password_entry = tk.Entry(frame_new_app_password, font=font_medium)
-new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(new_app_password_entry, "new password")
-add_password_toggle(new_app_password_entry)
+password_entry_frame__settings = tk.Frame(tab4)
+password_entry_frame__settings.pack(fill=tk.X, padx=5, pady=5)
+new_password_entry__settings = tk.Entry(password_entry_frame__settings, font=font_medium)
+new_password_entry__settings.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(new_password_entry__settings, "new password")
+add_show_hide_toggle(new_password_entry__settings)
 
-frame_new_app_password_repeat = tk.Frame(tab4)
-frame_new_app_password_repeat.pack(fill=tk.X, padx=5, pady=5)
-repeat_new_app_password_entry = tk.Entry(frame_new_app_password_repeat, font=font_medium)
-repeat_new_app_password_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-add_placeholder_password(repeat_new_app_password_entry, "repeat new password")
-add_password_toggle(repeat_new_app_password_entry)
+repeat_entry_frame__settings = tk.Frame(tab4)
+repeat_entry_frame__settings.pack(fill=tk.X, padx=5, pady=5)
+repeat_password_entry__settings = tk.Entry(repeat_entry_frame__settings, font=font_medium)
+repeat_password_entry__settings.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(repeat_password_entry__settings, "repeat new password")
+add_show_hide_toggle(repeat_password_entry__settings)
 
 # todo: set a command for save button
-save_button_settings = tk.Button(tab4, text="Save", font=font_medium)
-save_button_settings.pack(pady=5)
+save_button__settings = tk.Button(tab4, text="Save", font=font_medium)
+save_button__settings.pack(pady=5)
 
-feedback_label_settings = tk.Label(tab4, text="", font=font_medium)
-feedback_label_settings.pack(pady=5)
+feedback_label__settings = tk.Label(tab4, text="", font=font_medium)
+feedback_label__settings.pack(pady=5)
 
 
 root.mainloop()
