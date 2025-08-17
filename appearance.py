@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import tkinter.font as tkFont
 
 # ---------- DATA ----------
-info = {f'key{i}': f'value{i}' for i in range(1, 21)}
+passwords = {f'key{i}': f'value{i}' for i in range(1, 21)}
 
 PASSWORD = "12345"
 
@@ -14,7 +14,7 @@ font_small = ("Arial", 10)
 # ---------- UTILITY FUNCTIONS ----------
 def update_listbox(lb):
     lb.delete(0, tk.END)
-    for key in info.keys():
+    for key in passwords.keys():
         lb.insert(tk.END, key)
 
 def add_placeholder(entry, placeholder):
@@ -78,59 +78,65 @@ def on_listbox_key_select__view(event):
     selection = listbox__view.curselection()
     if selection:
         key = listbox__view.get(selection[0])
-        password_var__view.set(info[key])
+        password_var__view.set(passwords[key])
     else:
         password_var__view.set("")
 
 def copy_selected_password__view():
-    value = password_var__view.get()
-    if value:
+    password = password_var__view.get()
+    if password:
         root.clipboard_clear()
-        root.clipboard_append(value)
+        root.clipboard_append(password)
         root.update()
 
 def on_listbox_key_select__update(event):
     selection = listbox__update.curselection()
     if selection:
         key = listbox__update.get(selection[0])
-        current_password_label__update.config(text=f"Current Value: {info[key]}")
+        current_password_label__update.config(text=f"Current Password: {passwords[key]}")
     else:
-        current_password_label__update.config(text="Current Value: ")
+        current_password_label__update.config(text="Current Password: ")
 
 def add_new_password():
-    k = key_entry__add.get().strip()
-    v = password_entry__add.get().strip()
-    rv = repeat_entry__add.get().strip()
-    if not k or not v or not rv:
+    key = key_entry__add.get().strip()
+    if passwords.get(key, False):
+        feedback_label__add.config(
+            text="Key already exists. Visit update tab to update it's password",
+            fg="red"
+            )
+        return
+    password = password_entry__add.get()
+    password_repeat = repeat_entry__add.get()
+    if not key or not password or not password_repeat:
         feedback_label__add.config(text="Please fill all fields", fg="red")
         return
-    if v != rv:
-        feedback_label__add.config(text="Values do not match", fg="red")
+    if password != password_repeat:
+        feedback_label__add.config(text="Passwords do not match", fg="red")
         return
-    info[k] = v
-    feedback_label__add.config(text="New info saved", fg="green")
+    passwords[key] = password
+    feedback_label__add.config(text="New password saved", fg="green")
     update_listbox(listbox__view)
     update_listbox(listbox__update)
 
-def save_updated_password():
+def save_updated_password__update():
     selection = listbox__update.curselection()
     if not selection:
         feedback_label__update.config(text="Please select a key", fg="red")
         return
-    new_val = new_password_entry__update.get().strip()
-    repeat_val = repeat_password_entry__update.get().strip()
-    if not new_val or not repeat_val:
+    new_password = new_password_entry__update.get()
+    repeat_password = repeat_password_entry__update.get()
+    if not new_password or not repeat_password:
         feedback_label__update.config(text="Please fill all fields", fg="red")
         return
-    if new_val != repeat_val:
-        feedback_label__update.config(text="Values do not match", fg="red")
+    if new_password != repeat_password:
+        feedback_label__update.config(text="Passwords do not match", fg="red")
         return
     key = listbox__update.get(selection[0])
-    info[key] = new_val
-    feedback_label__update.config(text="Updated successfully", fg="green")
+    passwords[key] = new_password
+    feedback_label__update.config(text="Paasword updated successfully", fg="green")
     update_listbox(listbox__view)
     update_listbox(listbox__update)
-    current_password_label__update.config(text=f"Current Value: {new_val}")
+    current_password_label__update.config(text=f"Current Password: {new_password}")
 
 def delete_selected_key():
     selection = listbox__view.curselection()
@@ -140,7 +146,7 @@ def delete_selected_key():
     confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete '{key}'?\nThis action can not be reversed.")
     if not confirm:
         return
-    del info[key]
+    del passwords[key]
     update_listbox(listbox__view)
     update_listbox(listbox__update)
     password_var__view.set("")
@@ -155,7 +161,7 @@ def check_login():
     if pwd == PASSWORD:
         show_main_app()
     else:
-        feedback_label__login.config(text="wrong password", fg="red")
+        feedback_label__login.config(text="Wrong password", fg="red")
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
@@ -303,7 +309,7 @@ repeat_password_entry__update.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_password_entry__update, "repeat new password")
 add_show_hide_toggle(repeat_password_entry__update)
 
-save_button__update = tk.Button(tab3, text="Save", font=font_medium, command=save_updated_password)
+save_button__update = tk.Button(tab3, text="Save", font=font_medium, command=save_updated_password__update)
 save_button__update.pack(pady=5)
 
 feedback_label__update = tk.Label(tab3, text="", font=font_medium)
