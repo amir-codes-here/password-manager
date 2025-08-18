@@ -1,7 +1,19 @@
 import os
 import platform
 import tempfile
+import keyring
+import base64
+import hashlib
 from pathlib import Path
+
+
+KEY_FILE_NAME = '.key'
+VAULT_FILE_NAME = 'vault.json'
+BACKUP_KEY_FILE_NAME = 'key.bin'
+BACKUP_VAULT_FILE_NAME = 'vault-bu.json'
+KEYRING_SERVICE_NAME = 'PasswordManagerPy'
+KEYRING_USERNAME = 'password-manager-py'
+
 
 def get_key_directory():
     system = platform.system()
@@ -36,7 +48,28 @@ def get_temp_directory():
         return Path(os.getenv("TMPDIR", tempfile.gettempdir())).resolve()
 
 
-# # Example usage
-# print("Key directory:   ", get_key_directory())
-# print("Vault directory: ", get_vault_directory())
-# print("Temp directory:  ", get_temp_directory())
+def generate_enc_key():
+    #  todo: change later
+    return 'iurfhnslkhnsrtghdknrsekg'
+
+
+def generate_key_file():
+    d = get_key_directory()
+    file_path = d / KEY_FILE_NAME
+    if os.path.isfile(file_path):
+        return
+    key = generate_enc_key()
+    with open(file_path, 'wb') as file:
+        file.write(key)
+
+    # Restrict permissions on Linux/macOS . owner read/write only
+    if platform.system() != 'Windows':
+        try:
+            os.chmod(file_path, 0o600)
+        except Exception:
+            pass
+
+
+def check_if_app_pass_exists():
+    data = keyring.get_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
+    return bool(data)
