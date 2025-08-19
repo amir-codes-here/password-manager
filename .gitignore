@@ -1,6 +1,7 @@
 venv/
 
-test.py
-test2.py
+__pycache__/
 
 tempCodeRunnerFile.*
+
+test*.py
