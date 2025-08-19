@@ -104,23 +104,16 @@ def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
     return (salt, hashed_pass.hex())
 
 
-def _save_app_pass_to_system(password: str, salt: str) -> bool:
-    '''
-    entered password must be hashed
-    '''
+def set_new_app_pass(password: str) -> bool:
     if password and salt:
+        # todo: validate the password first
+        salt, hashed_pass = hash_password(password, gen_salt=True)
         if app_pass_exists():
             keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
-        data = salt + password
+        data = salt + hashed_pass
         keyring.set_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME, data)
         return True
     return False
-
-
-def set_new_app_pass(password: str):
-    # todo: validate the password first
-    salt, hashed_pass = hash_password(password, gen_salt=True)
-    _save_app_pass_to_system(hashed_pass, salt)
 
 
 def validate_app_password(password: str) -> bool:
