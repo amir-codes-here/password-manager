@@ -7,6 +7,7 @@ import secrets
 import string
 import hashlib
 from pathlib import Path
+from cryptography.fernet import Fernet
 
 
 KEY_FILE_NAME = '.key'
@@ -18,7 +19,8 @@ KEYRING_USERNAME = 'password-manager-py'
 HASH_SALT_LENGTH = 20
 
 
-def get_key_directory():
+# ----------------- directory & file related functions -----------------
+def get_key_directory() -> Path:
     system = platform.system()
     home = Path.home()
 
@@ -29,7 +31,7 @@ def get_key_directory():
     else:  # Linux & other Unix
         return Path(os.getenv("XDG_DATA_HOME", home / ".local" / "share")).resolve()
 
-def get_vault_directory():
+def get_vault_directory() -> Path:
     system = platform.system()
     home = Path.home()
 
@@ -40,7 +42,7 @@ def get_vault_directory():
     else:  # Linux & other Unix
         return Path(os.getenv("XDG_CONFIG_HOME", home / ".config")).resolve()
 
-def get_temp_directory():
+def get_temp_directory() -> Path:
     system = platform.system()
 
     if system == "Windows":
@@ -49,14 +51,8 @@ def get_temp_directory():
         return Path(tempfile.gettempdir()).resolve()
     else:  # Linux & other Unix
         return Path(os.getenv("TMPDIR", tempfile.gettempdir())).resolve()
-
-
-def generate_enc_key():
-    # todo: change later
-    return 'iurfhnslkhnsrtghdknrsekg'
-
-
-def generate_key_file():
+    
+def generate_key_file() -> None:
     d = get_key_directory()
     file_path = d / KEY_FILE_NAME
     if os.path.isfile(file_path):
@@ -73,7 +69,30 @@ def generate_key_file():
             pass
 
 
+# ----------------- cryptography related functions -----------------------
+def generate_enc_key() -> bytes:
+    return Fernet.generate_key()
 
+def get_enc_key() -> str:
+    file_path = get_key_directory() / KEY_FILE_NAME
+    with open(file_path, 'rb') as f:
+        key = f.readline()
+    return key
+
+def encrypt_text(text: str) -> bytes:
+    key = get_enc_key()
+    cipher = Fernet(key)
+    enc_text = cipher.encrypt(text.encode())
+    return enc_text
+
+def decrypt_text(text: str) -> bytes:
+    key = get_enc_key()
+    cipher = Fernet(key)
+    dec_text = cipher.decrypt(text.encode())
+    return dec_text
+
+
+# --------------- system credential manager related functions -------------
 def app_pass_exists() -> bool:
     data = keyring.get_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
     return bool(data)
@@ -120,3 +139,4 @@ def validate_app_password(password: str) -> bool:
     app_pass = get_hashed_pass_from_keyring()
     _, hashed_pass = hash_password(password)
     return hashed_pass == app_pass
+
