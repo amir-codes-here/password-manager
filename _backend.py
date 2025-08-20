@@ -17,6 +17,7 @@ BACKUP_VAULT_FILE_NAME = 'vault-bu.json'
 KEYRING_SERVICE_NAME = 'PasswordManagerPy'
 KEYRING_USERNAME = 'password-manager-py'
 HASH_SALT_LENGTH = 20
+KEK_FALLBACK = 'uT7.)Jkn826-2+jDd'
 
 
 # ----------------- directory & file related functions -----------------
@@ -58,6 +59,8 @@ def generate_key_file() -> None:
     if os.path.isfile(file_path):
         return
     key = generate_enc_key()
+    kek = get_KEK()
+    key = encrypt_text(key.decode(), kek)
     with open(file_path, 'wb') as file:
         file.write(key)
 
@@ -70,6 +73,70 @@ def generate_key_file() -> None:
 
 
 # ----------------- cryptography related functions -----------------------
+import platform
+import subprocess
+import os
+
+def get_motherboard_serial() -> str:
+    system = platform.system()
+
+    if system == "Windows":
+        try:
+            output = subprocess.check_output(
+                ["wmic", "baseboard", "get", "serialnumber"],
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+            ).decode(errors="ignore").splitlines()
+            serial = [line.strip() for line in output if line.strip() and "SerialNumber" not in line]
+            if serial:
+                return serial[0]
+        except Exception:
+            pass
+
+    elif system == "Linux":
+        try:
+            path = "/sys/class/dmi/id/board_serial"
+            if os.path.exists(path):
+                with open(path, "r") as f:
+                    return f.read().strip()
+        except Exception:
+            pass
+        try:
+            output = subprocess.check_output(
+                ["dmidecode", "-s", "baseboard-serial-number"],
+                stderr=subprocess.DEVNULL
+            )
+            return output.decode(errors="ignore").strip()
+        except Exception:
+            pass
+
+    elif system == "Darwin":  # macOS
+        try:
+            output = subprocess.check_output(
+                ["system_profiler", "SPHardwareDataType"],
+                stderr=subprocess.DEVNULL
+            ).decode(errors="ignore")
+            for line in output.splitlines():
+                if "Serial Number" in line:
+                    return line.split(":")[1].strip()
+        except Exception:
+            pass
+
+    return KEK_FALLBACK
+
+
+
+def turn_text_to_enc_key(text: str) -> bytes:
+    digest = hashlib.sha256(text.encode()).digest()
+    return base64.urlsafe_b64encode(digest)
+
+
+def get_KEK() -> bytes:  # KEK := Key Encryption Key
+    data = get_motherboard_serial() * 2
+    kek = turn_text_to_enc_key(data)
+    return kek
+
+
 def generate_enc_key() -> bytes:
     return Fernet.generate_key()
 
@@ -77,16 +144,18 @@ def get_enc_key() -> str:
     file_path = get_key_directory() / KEY_FILE_NAME
     with open(file_path, 'rb') as f:
         key = f.readline()
+    kek = get_KEK()
+    key = decrypt_text(key.decode(), kek)
     return key
 
-def encrypt_text(text: str) -> bytes:
-    key = get_enc_key()
+def encrypt_text(text: str, key: bytes = None) -> bytes:
+    key = get_enc_key() if key is None else key
     cipher = Fernet(key)
     enc_text = cipher.encrypt(text.encode())
     return enc_text
 
-def decrypt_text(text: str) -> bytes:
-    key = get_enc_key()
+def decrypt_text(text: str, key: bytes = None) -> bytes:
+    key = get_enc_key() if key is None else key
     cipher = Fernet(key)
     dec_text = cipher.decrypt(text.encode())
     return dec_text
