@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 import tempfile
 import keyring
 import base64
@@ -8,8 +9,10 @@ import string
 import hashlib
 from pathlib import Path
 from cryptography.fernet import Fernet
+import json
 
 
+# ---------------- setup --------------------
 KEY_FILE_NAME = '.key'
 VAULT_FILE_NAME = 'vault.json'
 BACKUP_KEY_FILE_NAME = 'key.bin'
@@ -43,7 +46,7 @@ def get_vault_directory() -> Path:
     else:  # Linux & other Unix
         return Path(os.getenv("XDG_CONFIG_HOME", home / ".config")).resolve()
 
-def get_temp_directory() -> Path:
+def get_backup_directory() -> Path:
     system = platform.system()
 
     if system == "Windows":
@@ -71,12 +74,50 @@ def generate_key_file() -> None:
         except Exception:
             pass
 
+def generate_vault_file() -> None:
+    d = get_vault_directory()
+    file_path = d / VAULT_FILE_NAME
+    if not os.path.isfile(file_path):
+        with open(file_path, 'w') as f:
+            pass
+
+def write_data_to_vault(data: dict[str: str], encript_data: bool = True) -> None:
+    d = get_vault_directory()
+    file_path = d / VAULT_FILE_NAME
+    data = encrypt_dict(data) if encript_data else data
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=3)
+
+def read_data_from_vault(decrypt_data: bool = True) -> dict | None:
+    d = get_vault_directory()
+    file_path = d / VAULT_FILE_NAME
+    if not os.path.isfile(file_path):
+        return None
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return decrypt_dict(data) if decrypt_data else data
+
+def update_backup_files() -> None:
+    backup_dir = get_backup_directory()
+    key_file_path = get_key_directory() / KEY_FILE_NAME
+    vault_file_path = get_vault_directory() / VAULT_FILE_NAME
+    backup_key_file_path = backup_dir / BACKUP_KEY_FILE_NAME
+    backup_vault_file_path = backup_dir / BACKUP_VAULT_FILE_NAME
+
+    if os.path.isfile(key_file_path):
+        with open(key_file_path, 'rb') as f:
+            key = f.readline()
+        with open(backup_key_file_path, 'wb') as f:
+            f.write(key)
+    
+    if os.path.isfile(vault_file_path):
+        with open(vault_file_path, 'r') as f:
+            key = f.readline()
+        with open(backup_vault_file_path, 'w') as f:
+            f.write(key)
+
 
 # ----------------- cryptography related functions -----------------------
-import platform
-import subprocess
-import os
-
 def get_motherboard_serial() -> str:
     system = platform.system()
 
@@ -124,23 +165,19 @@ def get_motherboard_serial() -> str:
 
     return KEK_FALLBACK
 
-
-
 def turn_text_to_enc_key(text: str) -> bytes:
     digest = hashlib.sha256(text.encode()).digest()
     return base64.urlsafe_b64encode(digest)
-
 
 def get_KEK() -> bytes:  # KEK := Key Encryption Key
     data = get_motherboard_serial() * 2
     kek = turn_text_to_enc_key(data)
     return kek
 
-
 def generate_enc_key() -> bytes:
     return Fernet.generate_key()
 
-def get_enc_key() -> str:
+def get_enc_key() -> bytes:
     file_path = get_key_directory() / KEY_FILE_NAME
     with open(file_path, 'rb') as f:
         key = f.readline()
@@ -159,6 +196,27 @@ def decrypt_text(text: str, key: bytes = None) -> bytes:
     cipher = Fernet(key)
     dec_text = cipher.decrypt(text.encode())
     return dec_text
+
+def encrypt_dict(data: dict[str: str]) -> dict[str: str]:
+    enc_data = {}
+    key = get_enc_key()
+    cipher = Fernet(key)
+    for key, value in data.items():
+        enc_key = cipher.encrypt(key.encode()).decode()
+        enc_value = cipher.encrypt(value.encode()).decode()
+        enc_data[enc_key] = enc_value
+    return enc_data
+
+
+def decrypt_dict(data: dict[str: str]) -> dict[str: str]:
+    dec_data = {}
+    key = get_enc_key()
+    cipher = Fernet(key)
+    for key, value in data.items():
+        dec_key = cipher.decrypt(key.encode()).decode()
+        dec_value = cipher.decrypt(value.encode()).decode()
+        dec_data[dec_key] = dec_value
+    return dec_data
 
 
 # --------------- system credential manager related functions -------------
@@ -191,7 +249,6 @@ def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
 
     return (salt, hashed_pass.hex())
 
-
 def set_new_app_pass(password: str) -> bool:
     if password and salt:
         # todo: validate the password first
@@ -203,8 +260,10 @@ def set_new_app_pass(password: str) -> bool:
         return True
     return False
 
+def app_pass_is_valid(password: str) -> bool:
+    return len(password) >= 8
 
-def validate_app_password(password: str) -> bool:
+def app_pass_is_correct(password: str) -> bool:
     app_pass = get_hashed_pass_from_keyring()
     _, hashed_pass = hash_password(password)
     return hashed_pass == app_pass
