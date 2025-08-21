@@ -59,11 +59,20 @@ def get_backup_directory() -> Path:
 def generate_key_file() -> None:
     d = get_key_directory()
     file_path = d / KEY_FILE_NAME
+
     if os.path.isfile(file_path):
         return
-    key = generate_enc_key()
-    kek = get_KEK()
-    key = encrypt_text(key.decode(), kek)
+    
+    backup_path = get_backup_directory() / BACKUP_KEY_FILE_NAME
+
+    if os.path.isfile(backup_path):
+        key = get_backup_key()
+
+    else:
+        key = generate_enc_key()
+        kek = get_KEK()
+        key = encrypt_text(key.decode(), kek)
+
     with open(file_path, 'wb') as file:
         file.write(key)
 
@@ -77,7 +86,18 @@ def generate_key_file() -> None:
 def generate_vault_file() -> None:
     d = get_vault_directory()
     file_path = d / VAULT_FILE_NAME
-    if not os.path.isfile(file_path):
+
+    if os.path.isfile(file_path):
+        return
+    
+    backup_file = get_backup_directory() / BACKUP_VAULT_FILE_NAME
+
+    if os.path.isfile(backup_file):
+        data = get_backup_vault_data()
+        with open(file_path, 'w') as f:
+            json.dump(data, f)
+
+    else:
         with open(file_path, 'w') as f:
             pass
 
@@ -91,10 +111,13 @@ def write_data_to_vault(data: dict[str: str], encript_data: bool = True) -> None
 def read_data_from_vault(decrypt_data: bool = True) -> dict | None:
     d = get_vault_directory()
     file_path = d / VAULT_FILE_NAME
+
     if not os.path.isfile(file_path):
         return None
+    
     with open(file_path, 'r') as f:
         data = json.load(f)
+
     return decrypt_dict(data) if decrypt_data else data
 
 def update_backup_files() -> None:
@@ -107,14 +130,34 @@ def update_backup_files() -> None:
     if os.path.isfile(key_file_path):
         with open(key_file_path, 'rb') as f:
             key = f.readline()
+
         with open(backup_key_file_path, 'wb') as f:
             f.write(key)
     
     if os.path.isfile(vault_file_path):
         with open(vault_file_path, 'r') as f:
             key = f.readline()
+
         with open(backup_vault_file_path, 'w') as f:
             f.write(key)
+
+def get_backup_key(decrypt_key: bool = False) -> bytes:
+    file_path = get_backup_directory() / BACKUP_KEY_FILE_NAME
+
+    with open(file_path, 'rb') as f:
+        data = f.readline()
+
+    if decrypt_dict:
+        kek = get_KEK()
+        data = decrypt_text(data.decode(), kek)
+
+    return data
+
+def get_backup_vault_data(decrypt_data: bool = False) -> dict[str: str]:
+    file_path = get_backup_directory() / BACKUP_VAULT_FILE_NAME
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return decrypt_dict(data) if decrypt_data else data
 
 
 # ----------------- cryptography related functions -----------------------
@@ -201,10 +244,12 @@ def encrypt_dict(data: dict[str: str]) -> dict[str: str]:
     enc_data = {}
     key = get_enc_key()
     cipher = Fernet(key)
+
     for key, value in data.items():
         enc_key = cipher.encrypt(key.encode()).decode()
         enc_value = cipher.encrypt(value.encode()).decode()
         enc_data[enc_key] = enc_value
+
     return enc_data
 
 
@@ -212,10 +257,12 @@ def decrypt_dict(data: dict[str: str]) -> dict[str: str]:
     dec_data = {}
     key = get_enc_key()
     cipher = Fernet(key)
+
     for key, value in data.items():
         dec_key = cipher.decrypt(key.encode()).decode()
         dec_value = cipher.decrypt(value.encode()).decode()
         dec_data[dec_key] = dec_value
+
     return dec_data
 
 
@@ -253,10 +300,13 @@ def set_new_app_pass(password: str) -> bool:
     if password and salt:
         # todo: validate the password first
         salt, hashed_pass = hash_password(password, gen_salt=True)
+
         if app_pass_exists():
             keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
+
         data = salt + hashed_pass
         keyring.set_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME, data)
+        
         return True
     return False
 
