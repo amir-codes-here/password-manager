@@ -20,7 +20,7 @@ BACKUP_VAULT_FILE_NAME = 'vault-bu.json'
 KEYRING_SERVICE_NAME = 'PasswordManagerPy'
 KEYRING_USERNAME = 'password-manager-py'
 HASH_SALT_LENGTH = 20
-KEK_FALLBACK = 'uT7.)Jkn826-2+jDd'
+KEK_FALLBACK = 'uT7.)Jkn826-2+jDd,.jYHV*(-=w2mm}'
 
 
 # ----------------- directory & file related functions -----------------
@@ -318,7 +318,7 @@ def app_pass_is_correct(password: str) -> bool:
     return hashed_pass == app_pass
 
 
-# --------------- data minipulation functions -------------
+# -------------------- data minipulation functions -------------------
 def reset_all() -> None:
     files = [
         get_key_directory() / KEY_FILE_NAME,

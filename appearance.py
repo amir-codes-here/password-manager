@@ -163,7 +163,8 @@ def check_login():
     else:
         feedback_label__login.config(text="Wrong password", fg="red")
 
-def set_app_pass():
+# this is called on app open when password does not exist
+def set_app_pass__set_pass():
     pwd = new_password_entry__set_pass.get()
     pwd2 = repeat_password_entry__set_pass.get()
 
@@ -179,6 +180,19 @@ def set_app_pass():
 
     feedback_label__set_pass.config(text=msg, fg='red')
 
+# this is called when user changes app password in settings tab
+def set_app_pass__settings():
+    pwd = new_password_entry__settings.get()
+    pwd2 = repeat_password_entry__settings.get()
+
+    if not (pwd and pwd2):
+        feedback_label__settings.config(text="Please fill out all fields", fg='red')
+    elif pwd != pwd2:
+        feedback_label__settings.config(text="Passwords do not match", fg='red')
+    elif b.set_new_app_pass(pwd):
+        feedback_label__settings.config(text="New password set successfully", fg='green')
+    else:
+        feedback_label__settings.config(text="Something went wrong", fg='red')
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
@@ -227,7 +241,7 @@ repeat_password_entry__set_pass.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_password_entry__set_pass, "repeat new password")
 add_show_hide_toggle(repeat_password_entry__set_pass)
 
-save_button__set_password = tk.Button(set_pass_frame, text="Save Password", font=font_medium, command=set_app_pass)
+save_button__set_password = tk.Button(set_pass_frame, text="Save Password", font=font_medium, command=set_app_pass__set_pass)
 save_button__set_password.pack(pady=10)
 
 feedback_label__set_pass = tk.Label(set_pass_frame, text="", font=font_medium)
@@ -379,7 +393,7 @@ add_placeholder_password(repeat_password_entry__settings, "repeat new password")
 add_show_hide_toggle(repeat_password_entry__settings)
 
 # todo: set a command for save button
-save_button__settings = tk.Button(tab4, text="Save", font=font_medium)
+save_button__settings = tk.Button(tab4, text="Save", font=font_medium, command=set_app_pass__settings)
 save_button__settings.pack(pady=5)
 
 feedback_label__settings = tk.Label(tab4, text="", font=font_medium)
