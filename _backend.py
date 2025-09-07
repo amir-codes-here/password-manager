@@ -273,7 +273,6 @@ def app_pass_exists() -> bool:
 
 def generate_salt() -> str:
     salt = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(HASH_SALT_LENGTH))
-    print(f"new salt generetaed :\n{salt}")
     return salt
 
 def get_salt_from_keyring() -> str:
@@ -297,7 +296,7 @@ def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
     return (salt, hashed_pass.hex())
 
 def set_new_app_pass(password: str) -> bool:
-    if password and salt:
+    if password:
         # todo: validate the password first
         salt, hashed_pass = hash_password(password, gen_salt=True)
 
@@ -318,3 +317,19 @@ def app_pass_is_correct(password: str) -> bool:
     _, hashed_pass = hash_password(password)
     return hashed_pass == app_pass
 
+
+# --------------- data minipulation functions -------------
+def reset_all() -> None:
+    files = [
+        get_key_directory() / KEY_FILE_NAME,
+        get_vault_directory() / VAULT_FILE_NAME,
+        get_backup_directory() / BACKUP_KEY_FILE_NAME,
+        get_backup_directory() / BACKUP_VAULT_FILE_NAME,
+    ]
+
+    for file in files:
+        if os.path.exists(file):
+            os.remove(file)
+
+    if app_pass_exists():
+        keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)

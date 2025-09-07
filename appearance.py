@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkFont
+import _backend as b
 
 # ---------- DATA ----------
 passwords = {f'key{i}': f'value{i}' for i in range(1, 21)}
-
-PASSWORD = "12345"
 
 font_big = ("Arial", 14)
 font_medium = ("Arial", 12)
@@ -151,17 +150,35 @@ def delete_selected_key():
     update_listbox(listbox__update)
     password_var__view.set("")
 
-# ---------- LOGIN SCREEN ----------
+# ---------- LOGIN & SET PASSWORD SCREENS ----------
 def show_main_app():
     login_frame.pack_forget()
+    set_pass_frame.pack_forget()
     app_frame.pack(fill=tk.BOTH, expand=True)
 
 def check_login():
-    pwd = password_entry__login.get().strip()
-    if pwd == PASSWORD:
+    pwd = password_entry__login.get()
+    if b.app_pass_is_correct(pwd):
         show_main_app()
     else:
         feedback_label__login.config(text="Wrong password", fg="red")
+
+def set_app_pass():
+    pwd = new_password_entry__set_pass.get()
+    pwd2 = repeat_password_entry__set_pass.get()
+
+    if not (pwd and pwd2):
+        msg = "Please fill out all fields"
+    elif pwd != pwd2:
+        msg = "Passwords do not match"
+    elif b.set_new_app_pass(pwd):
+        show_main_app()
+        return
+    else:
+        msg = "Something went wrong"
+
+    feedback_label__set_pass.config(text=msg, fg='red')
+
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
@@ -173,7 +190,6 @@ root.bind_class("Button", "<Return>", lambda e: e.widget.invoke())
 
 # ---------- LOGIN FRAME ----------
 login_frame = tk.Frame(root)
-login_frame.pack(fill=tk.BOTH, expand=True)
 
 label__login = tk.Label(login_frame, text="Enter Password", font=font_big)
 label__login.pack(pady=20)
@@ -190,6 +206,32 @@ login_button.pack(pady=10)
 
 feedback_label__login = tk.Label(login_frame, text="", font=font_medium)
 feedback_label__login.pack()
+
+# ---------- SET APP PASSWORD FRAME ----------
+set_pass_frame = tk.Frame(root)
+
+label__set_pass = tk.Label(set_pass_frame, text="Set App Password", font=font_big)
+label__set_pass.pack(pady=20)
+
+new_password_entry_frame__set_pass = tk.Frame(set_pass_frame)
+new_password_entry_frame__set_pass.pack(fill=tk.X, padx=50, pady=5)
+new_password_entry__set_pass = tk.Entry(new_password_entry_frame__set_pass, font=font_medium)
+new_password_entry__set_pass.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(new_password_entry__set_pass, "new password")
+add_show_hide_toggle(new_password_entry__set_pass)
+
+repeat_password_entry_frame__set_pass = tk.Frame(set_pass_frame)
+repeat_password_entry_frame__set_pass.pack(fill=tk.X, padx=50, pady=5)
+repeat_password_entry__set_pass = tk.Entry(repeat_password_entry_frame__set_pass, font=font_medium)
+repeat_password_entry__set_pass.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(repeat_password_entry__set_pass, "repeat new password")
+add_show_hide_toggle(repeat_password_entry__set_pass)
+
+save_button__set_password = tk.Button(set_pass_frame, text="Save Password", font=font_medium, command=set_app_pass)
+save_button__set_password.pack(pady=10)
+
+feedback_label__set_pass = tk.Label(set_pass_frame, text="", font=font_medium)
+feedback_label__set_pass.pack()
 
 # ---------- MAIN APP FRAME ----------
 app_frame = tk.Frame(root)
@@ -343,5 +385,11 @@ save_button__settings.pack(pady=5)
 feedback_label__settings = tk.Label(tab4, text="", font=font_medium)
 feedback_label__settings.pack(pady=5)
 
+# ---------- Decide Start Screen ----------
+if b.app_pass_exists():
+    login_frame.pack(fill=tk.BOTH, expand=True)
+else:
+    b.reset_all()
+    set_pass_frame.pack(fill=tk.BOTH, expand=True)
 
 root.mainloop()
