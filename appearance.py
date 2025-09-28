@@ -72,6 +72,11 @@ def add_show_hide_toggle(entry):
 
     toggle_btn.config(command=toggle)
 
+def show_login_after_time():
+    set_pass_frame.pack_forget()
+    app_frame.pack_forget()
+    login_frame.pack(fill=tk.BOTH, expand=True)
+
 # ---------- APP LOGIC FUNCTIONS ----------
 def on_listbox_key_select__view(event):
     selection = listbox__view.curselection()
@@ -405,5 +410,8 @@ if b.app_pass_exists():
 else:
     b.reset_all()
     set_pass_frame.pack(fill=tk.BOTH, expand=True)
+
+
+root.after(120_000, show_login_after_time)
 
 root.mainloop()
