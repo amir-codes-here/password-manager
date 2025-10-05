@@ -92,14 +92,9 @@ def generate_vault_file() -> None:
     
     backup_file = get_backup_directory() / BACKUP_VAULT_FILE_NAME
 
-    if os.path.isfile(backup_file):
-        data = get_backup_vault_data()
-        with open(file_path, 'w') as f:
-            json.dump(data, f)
-
-    else:
-        with open(file_path, 'w') as f:
-            pass
+    data = get_backup_vault_data() if os.path.isfile(backup_file) else {}
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
 
 def write_data_to_vault(data: dict[str: str], encript_data: bool = True) -> None:
     d = get_vault_directory()
@@ -252,7 +247,6 @@ def encrypt_dict(data: dict[str: str]) -> dict[str: str]:
 
     return enc_data
 
-
 def decrypt_dict(data: dict[str: str]) -> dict[str: str]:
     dec_data = {}
     key = get_enc_key()
@@ -318,7 +312,7 @@ def app_pass_is_correct(password: str) -> bool:
     return hashed_pass == app_pass
 
 
-# -------------------- data minipulation functions -------------------
+# -------------------- utility functions -------------------
 def reset_all() -> None:
     files = [
         get_key_directory() / KEY_FILE_NAME,
@@ -333,3 +327,40 @@ def reset_all() -> None:
 
     if app_pass_exists():
         keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
+
+
+def get_passwords_from_vault() -> dict:
+    with open(get_vault_directory() / VAULT_FILE_NAME, 'w') as f:
+        return json.load(f)
+    
+
+def generate_strong_password(length=12):
+    if length < 4:
+        raise ValueError("Password length must be at least 4 to include all character types.")
+
+    # Character pools
+    upper = string.ascii_uppercase
+    lower = string.ascii_lowercase
+    digits = string.digits
+    special = r"/\()-_+@#$%*&<>?:{}.,"
+
+    # Ensure at least one of each required character
+    password_chars = [
+        secrets.choice(upper),
+        secrets.choice(lower),
+        secrets.choice(digits),
+        secrets.choice(special)
+    ]
+
+    # Combine all pools for remaining characters
+    all_chars = upper + lower + digits + special
+
+    # Fill remaining characters with high-entropy random choices
+    password_chars += [secrets.choice(all_chars) for _ in range(length - 4)]
+
+    # Shuffle securely to randomize order
+    secrets.SystemRandom().shuffle(password_chars)
+
+    return ''.join(password_chars)
+
+

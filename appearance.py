@@ -4,7 +4,7 @@ import tkinter.font as tkFont
 import _backend as b
 
 # ---------- DATA ----------
-passwords = {f'key{i}': f'value{i}' for i in range(1, 21)}
+passwords = {}
 
 font_big = ("Arial", 14)
 font_medium = ("Arial", 12)
@@ -157,6 +157,8 @@ def delete_selected_key():
 
 # ---------- LOGIN & SET PASSWORD SCREENS ----------
 def show_main_app():
+    global passwords
+    passwords = b.get_passwords_from_vault()
     login_frame.pack_forget()
     set_pass_frame.pack_forget()
     app_frame.pack(fill=tk.BOTH, expand=True)
