@@ -96,19 +96,20 @@ def generate_vault_file() -> None:
     with open(file_path, 'w') as f:
         json.dump(data, f)
 
-def write_data_to_vault(data: dict[str: str], encript_data: bool = True) -> None:
+def add_password_to_vault(data: dict[str: str], encrypt_data: bool = True) -> None:
     d = get_vault_directory()
     file_path = d / VAULT_FILE_NAME
-    data = encrypt_dict(data) if encript_data else data
+    data = encrypt_dict(data) if encrypt_data else data
     with open(file_path, 'w') as f:
         json.dump(data, f, indent=3)
 
-def read_data_from_vault(decrypt_data: bool = True) -> dict | None:
+def get_passwords_from_vault(decrypt_data: bool = True) -> dict:
     d = get_vault_directory()
     file_path = d / VAULT_FILE_NAME
 
     if not os.path.isfile(file_path):
-        return None
+        generate_vault_file()
+        return {}
     
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -326,13 +327,7 @@ def reset_all() -> None:
             os.remove(file)
 
     if app_pass_exists():
-        keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)
-
-
-def get_passwords_from_vault() -> dict:
-    with open(get_vault_directory() / VAULT_FILE_NAME, 'w') as f:
-        return json.load(f)
-    
+        keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)    
 
 def generate_strong_password(length=12):
     if length < 4:
@@ -363,4 +358,6 @@ def generate_strong_password(length=12):
 
     return ''.join(password_chars)
 
-
+def initiate_files() -> None:
+    generate_vault_file()
+    generate_key_file()

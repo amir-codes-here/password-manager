@@ -407,6 +407,8 @@ feedback_label__settings = tk.Label(tab4, text="", font=font_medium)
 feedback_label__settings.pack(pady=5)
 
 # ---------- Decide Start Screen ----------
+b.initiate_files()
+
 if b.app_pass_exists():
     login_frame.pack(fill=tk.BOTH, expand=True)
 else:
@@ -414,6 +416,6 @@ else:
     set_pass_frame.pack(fill=tk.BOTH, expand=True)
 
 
-root.after(120_000, show_login_after_time)
+root.after(300_000, show_login_after_time)  # app returns to login frame after 5 minutes (300_000 mili seconds)
 
 root.mainloop()
