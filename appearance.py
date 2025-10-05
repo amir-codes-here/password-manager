@@ -399,7 +399,6 @@ repeat_password_entry__settings.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_password_entry__settings, "repeat new password")
 add_show_hide_toggle(repeat_password_entry__settings)
 
-# todo: set a command for save button
 save_button__settings = tk.Button(tab4, text="Save", font=font_medium, command=set_app_pass__settings)
 save_button__settings.pack(pady=5)
 

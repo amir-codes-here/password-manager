@@ -291,7 +291,8 @@ def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
     return (salt, hashed_pass.hex())
 
 def set_new_app_pass(password: str) -> bool:
-    if password:
+    password = str(password)
+    if app_pass_is_valid(password):
         # todo: validate the password first
         salt, hashed_pass = hash_password(password, gen_salt=True)
 
@@ -305,6 +306,7 @@ def set_new_app_pass(password: str) -> bool:
     return False
 
 def app_pass_is_valid(password: str) -> bool:
+    # todo: add better password validation logic
     return len(password) >= 8
 
 def app_pass_is_correct(password: str) -> bool:
@@ -314,6 +316,10 @@ def app_pass_is_correct(password: str) -> bool:
 
 
 # -------------------- utility functions -------------------
+def initiate_files() -> None:
+    generate_vault_file()
+    generate_key_file()
+
 def reset_all() -> None:
     files = [
         get_key_directory() / KEY_FILE_NAME,
@@ -326,8 +332,7 @@ def reset_all() -> None:
         if os.path.exists(file):
             os.remove(file)
 
-    if app_pass_exists():
-        keyring.delete_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)    
+    initiate_files()
 
 def generate_strong_password(length=12):
     if length < 4:
@@ -357,7 +362,3 @@ def generate_strong_password(length=12):
     secrets.SystemRandom().shuffle(password_chars)
 
     return ''.join(password_chars)
-
-def initiate_files() -> None:
-    generate_vault_file()
-    generate_key_file()
