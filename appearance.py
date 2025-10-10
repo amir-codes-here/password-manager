@@ -266,13 +266,32 @@ font_obj = tkFont.Font(family=font_big[0], size=font_big[1])
 char_width = font_obj.measure("0")
 char_height = font_obj.metrics("linespace")
 target_px_width = int(screen_width * 0.3)
-target_px_height = int(screen_height * 0.4)
+target_px_height = int(screen_height * 0.34)
 listbox_width = target_px_width // char_width
 listbox_height = target_px_height // char_height
 
 # ---------------TAB 1: VIEW--------------------
 tab1 = ttk.Frame(notebook)
 notebook.add(tab1, text="View")
+
+search_frame__view = tk.Frame(tab1)
+search_frame__view.pack(fill="x", padx=10, pady=(10, 0))
+
+search_var__view = tk.StringVar()
+search_entry__view = tk.Entry(
+    search_frame__view,
+    textvariable=search_var__view,
+    font=font_medium
+)
+search_entry__view.pack(side="left", fill="x", expand=True)
+
+search_button__view = tk.Button(
+    search_frame__view,
+    text="🔍",
+    font=font_small,
+    # command=lambda: search_items(search_var__view.get())
+)
+search_button__view.pack(side="right", padx=(5, 0))
 
 frame__view = tk.Frame(tab1)
 frame__view.pack(pady=10)
@@ -344,12 +363,31 @@ feedback_label__add.pack(pady=5)
 tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Update")
 
+search_frame__update = tk.Frame(tab3)
+search_frame__update.pack(fill="x", padx=10, pady=(10, 0))
+
+search_var__update = tk.StringVar()
+search_entry__update = tk.Entry(
+    search_frame__update,
+    textvariable=search_var__update,
+    font=font_medium
+)
+search_entry__update.pack(side="left", fill="x", expand=True)
+
+search_button__update = tk.Button(
+    search_frame__update,
+    text="🔍",
+    font=font_small,
+    # command=lambda: search_items(search_var__update.get())
+)
+search_button__update.pack(side="right", padx=(5, 0))
+
 frame__update = tk.Frame(tab3)
 frame__update.pack(pady=10)
 scrollbar__update = tk.Scrollbar(frame__update)
 scrollbar__update.pack(side=tk.RIGHT, fill=tk.Y)
 listbox__update = tk.Listbox(frame__update, yscrollcommand=scrollbar__update.set,
-                            font=font_big, width=listbox_width, height=listbox_height//2)
+                            font=font_big, width=listbox_width, height=listbox_height - 4)
 listbox__update.pack(side=tk.LEFT, fill=tk.BOTH)
 scrollbar__update.config(command=listbox__update.yview)
 listbox__update.bind("<<ListboxSelect>>", on_listbox_key_select__update)
