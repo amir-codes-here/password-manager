@@ -96,7 +96,7 @@ def generate_vault_file() -> None:
     with open(file_path, 'w') as f:
         json.dump(data, f)
 
-def add_password_to_vault(data: dict[str: str], encrypt_data: bool = True) -> None:
+def add_passwords_to_vault(data: dict[str: str], encrypt_data: bool = True) -> None:
     d = get_vault_directory()
     file_path = d / VAULT_FILE_NAME
     data = encrypt_dict(data) if encrypt_data else data

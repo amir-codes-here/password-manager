@@ -118,6 +118,7 @@ def add_new_password():
         feedback_label__add.config(text="Passwords do not match", fg="red")
         return
     passwords[key] = password
+    b.add_passwords_to_vault(passwords)
     feedback_label__add.config(text="New password saved", fg="green")
     update_listbox(listbox__view)
     update_listbox(listbox__update)
@@ -137,6 +138,7 @@ def save_updated_password__update():
         return
     key = listbox__update.get(selection[0])
     passwords[key] = new_password
+    b.add_passwords_to_vault(passwords)
     feedback_label__update.config(text="Paasword updated successfully", fg="green")
     update_listbox(listbox__view)
     update_listbox(listbox__update)
@@ -151,6 +153,7 @@ def delete_selected_key():
     if not confirm:
         return
     del passwords[key]
+    b.add_passwords_to_vault(passwords)
     update_listbox(listbox__view)
     update_listbox(listbox__update)
     password_var__view.set("")
@@ -159,6 +162,8 @@ def delete_selected_key():
 def show_main_app():
     global passwords
     passwords = b.get_passwords_from_vault()
+    update_listbox(listbox__view)
+    update_listbox(listbox__update)
     login_frame.pack_forget()
     set_pass_frame.pack_forget()
     app_frame.pack(fill=tk.BOTH, expand=True)
@@ -175,7 +180,7 @@ def set_app_pass__set_pass():
     pwd = new_password_entry__set_pass.get()
     pwd2 = repeat_password_entry__set_pass.get()
 
-    if not (pwd and pwd2):
+    if not pwd or not pwd2:
         msg = "Please fill out all fields"
     elif pwd != pwd2:
         msg = "Passwords do not match"
@@ -183,7 +188,8 @@ def set_app_pass__set_pass():
         show_main_app()
         return
     else:
-        msg = "Something went wrong"
+        # todo: add proper and descriptive "password not valid" message
+        msg = "Password is not valid!"
 
     feedback_label__set_pass.config(text=msg, fg='red')
 
@@ -192,14 +198,15 @@ def set_app_pass__settings():
     pwd = new_password_entry__settings.get()
     pwd2 = repeat_password_entry__settings.get()
 
-    if not (pwd and pwd2):
+    if not pwd or not pwd2:
         feedback_label__settings.config(text="Please fill out all fields", fg='red')
     elif pwd != pwd2:
         feedback_label__settings.config(text="Passwords do not match", fg='red')
     elif b.set_new_app_pass(pwd):
         feedback_label__settings.config(text="New password set successfully", fg='green')
     else:
-        feedback_label__settings.config(text="Something went wrong", fg='red')
+        # todo: add proper and descriptive "password not valid" message
+        feedback_label__settings.config(text="Password is not valid!", fg='red')
 
 # ---------- MAIN WINDOW ----------
 root = tk.Tk()
