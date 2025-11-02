@@ -293,7 +293,6 @@ def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
 def set_new_app_pass(password: str) -> bool:
     password = str(password)
     if app_pass_is_valid(password):
-        # todo: validate the password first
         salt, hashed_pass = hash_password(password, gen_salt=True)
 
         if app_pass_exists():

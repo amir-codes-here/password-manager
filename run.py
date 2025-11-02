@@ -506,3 +506,6 @@ else:
 root.after(300_000, show_login_after_time)  # app returns to login frame after 5 minutes (300_000 mili seconds)
 
 root.mainloop()
+
+
+# todo: update backup files on app close
