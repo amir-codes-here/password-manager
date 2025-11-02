@@ -11,10 +11,11 @@ font_medium = ("Arial", 12)
 font_small = ("Arial", 10)
 
 # ---------- UTILITY FUNCTIONS ----------
-def update_listbox(lb):
+def update_listbox(lb, search_string = ''):
     lb.delete(0, tk.END)
     for key in passwords.keys():
-        lb.insert(tk.END, key)
+        if search_string in key:
+            lb.insert(tk.END, key)
 
 def add_placeholder(entry, placeholder):
     entry.insert(0, placeholder)
@@ -296,7 +297,7 @@ search_button__view = tk.Button(
     search_frame__view,
     text="🔍",
     font=font_small,
-    # command=lambda: search_items(search_var__view.get())
+    command=lambda: update_listbox(listbox__view, search_var__view.get())
 )
 search_button__view.pack(side="right", padx=(5, 0))
 
@@ -385,7 +386,7 @@ search_button__update = tk.Button(
     search_frame__update,
     text="🔍",
     font=font_small,
-    # command=lambda: search_items(search_var__update.get())
+    command=lambda: update_listbox(listbox__update, search_var__update.get())
 )
 search_button__update.pack(side="right", padx=(5, 0))
 
