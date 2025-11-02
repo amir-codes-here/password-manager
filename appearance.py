@@ -424,31 +424,42 @@ save_button__update.pack(pady=5)
 feedback_label__update = tk.Label(tab3, text="", font=font_medium)
 feedback_label__update.pack(pady=5)
 
-# --------------------TAB 4: SETTINGS------------------
+# --------------------TAB 4: TOOLS------------------
 tab4 = ttk.Frame(notebook)
-notebook.add(tab4, text="Settings")
+notebook.add(tab4, text="Tools")
 
-label__settings = tk.Label(tab4, text="Set new password for the app", font=font_medium)
+label__tools = tk.Label(tab4, text="Strong password generator", font=font_medium)
+label__tools.pack(pady=5)
+
+
+
+
+
+# --------------------TAB 5: SETTINGS------------------
+tab5 = ttk.Frame(notebook)
+notebook.add(tab5, text="Settings")
+
+label__settings = tk.Label(tab5, text="Set new password for the app", font=font_medium)
 label__settings.pack(pady=5)
 
-password_entry_frame__settings = tk.Frame(tab4)
+password_entry_frame__settings = tk.Frame(tab5)
 password_entry_frame__settings.pack(fill=tk.X, padx=5, pady=5)
 new_password_entry__settings = tk.Entry(password_entry_frame__settings, font=font_medium)
 new_password_entry__settings.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(new_password_entry__settings, "new password")
 add_show_hide_toggle(new_password_entry__settings)
 
-repeat_entry_frame__settings = tk.Frame(tab4)
+repeat_entry_frame__settings = tk.Frame(tab5)
 repeat_entry_frame__settings.pack(fill=tk.X, padx=5, pady=5)
 repeat_password_entry__settings = tk.Entry(repeat_entry_frame__settings, font=font_medium)
 repeat_password_entry__settings.pack(side=tk.LEFT, fill=tk.X, expand=True)
 add_placeholder_password(repeat_password_entry__settings, "repeat new password")
 add_show_hide_toggle(repeat_password_entry__settings)
 
-save_button__settings = tk.Button(tab4, text="Save", font=font_medium, command=set_app_pass__settings)
+save_button__settings = tk.Button(tab5, text="Save", font=font_medium, command=set_app_pass__settings)
 save_button__settings.pack(pady=5)
 
-feedback_label__settings = tk.Label(tab4, text="", font=font_medium)
+feedback_label__settings = tk.Label(tab5, text="", font=font_medium)
 feedback_label__settings.pack(pady=5)
 
 # ---------- Decide Start Screen ----------
