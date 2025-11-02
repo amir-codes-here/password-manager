@@ -94,6 +94,13 @@ def copy_selected_password__view():
         root.clipboard_append(password)
         root.update()
 
+def copy_generated_password__tools():
+    password = generated_pass_var__tools.get()
+    if password:
+        root.clipboard_clear()
+        root.clipboard_append(password)
+        root.update()
+
 def on_listbox_key_select__update(event):
     selection = listbox__update.curselection()
     if selection:
@@ -431,9 +438,33 @@ notebook.add(tab4, text="Tools")
 label__tools = tk.Label(tab4, text="Strong password generator", font=font_medium)
 label__tools.pack(pady=5)
 
+password_entry_frame__tools = tk.Frame(tab4)
+password_entry_frame__tools.pack(fill=tk.X, padx=5, pady=5)
+generated_pass_var__tools = tk.StringVar()
 
+password_length_var__tools = tk.IntVar(value=12)
+password_length_scale__tools = tk.Scale(tab4, variable=password_length_var__tools, from_=8, to=32,
+                                        orient=tk.HORIZONTAL, label="Password Length", font=font_medium)
+password_length_scale__tools.pack(pady=5, fill=tk.X)
 
+generated_password_entry__tools = tk.Entry(password_entry_frame__tools,
+                                           font=font_medium,
+                                           textvariable=generated_pass_var__tools,
+                                           state="readonly")
+generated_password_entry__tools.pack(side=tk.LEFT, fill=tk.X, expand=True)
+add_placeholder_password(generated_password_entry__tools, "Generated Password")
+add_show_hide_toggle(generated_password_entry__tools)
 
+generate_button__tools = tk.Button(tab4, text="Generate", font=font_medium, bg="lightgreen",
+                                command=lambda: generated_pass_var__tools.set(b.generate_strong_password(password_length_var__tools.get())))
+generate_button__tools.pack(pady=5)
+
+copy_button__tools = tk.Button(tab4, text="Copy", font=font_medium, bg="lightyellow",
+                               command=copy_generated_password__tools)
+copy_button__tools.pack(pady=5)
+
+feedback_label__tools = tk.Label(tab4, text="", font=font_medium)
+feedback_label__tools.pack(pady=5)
 
 # --------------------TAB 5: SETTINGS------------------
 tab5 = ttk.Frame(notebook)
