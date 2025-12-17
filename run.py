@@ -78,6 +78,10 @@ def show_login_after_time():
     app_frame.pack_forget()
     login_frame.pack(fill=tk.BOTH, expand=True)
 
+def before_app_close():
+    b.update_backup_files()
+    root.destroy()
+
 # ---------- APP LOGIC FUNCTIONS ----------
 def on_listbox_key_select__view(event):
     selection = listbox__view.curselection()
@@ -147,7 +151,7 @@ def save_updated_password__update():
     key = listbox__update.get(selection[0])
     passwords[key] = new_password
     b.add_passwords_to_vault(passwords)
-    feedback_label__update.config(text="Paasword updated successfully", fg="green")
+    feedback_label__update.config(text="Password updated successfully", fg="green")
     update_listbox(listbox__view)
     update_listbox(listbox__update)
     current_password_label__update.config(text=f"Current Password: {new_password}")
@@ -505,7 +509,7 @@ else:
 
 root.after(300_000, show_login_after_time)  # app returns to login frame after 5 minutes (300_000 mili seconds)
 
+root.protocol("WM_DELETE_WINDOW", before_app_close)  # `before_app_close` gets run before app is closed
+
 root.mainloop()
 
-
-# todo: update backup files on app close

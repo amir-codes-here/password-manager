@@ -94,7 +94,7 @@ def generate_vault_file() -> None:
 
     data = get_backup_vault_data() if os.path.isfile(backup_file) else {}
     with open(file_path, 'w') as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=3)
 
 def add_passwords_to_vault(data: dict[str: str], encrypt_data: bool = True) -> None:
     d = get_vault_directory()
@@ -125,17 +125,17 @@ def update_backup_files() -> None:
 
     if os.path.isfile(key_file_path):
         with open(key_file_path, 'rb') as f:
-            key = f.readline()
+            key = f.read()
 
         with open(backup_key_file_path, 'wb') as f:
             f.write(key)
     
     if os.path.isfile(vault_file_path):
         with open(vault_file_path, 'r') as f:
-            key = f.readline()
+            data = f.read()
 
         with open(backup_vault_file_path, 'w') as f:
-            f.write(key)
+            f.write(data)
 
 def get_backup_key(decrypt_key: bool = False) -> bytes:
     file_path = get_backup_directory() / BACKUP_KEY_FILE_NAME
@@ -143,7 +143,7 @@ def get_backup_key(decrypt_key: bool = False) -> bytes:
     with open(file_path, 'rb') as f:
         data = f.readline()
 
-    if decrypt_dict:
+    if decrypt_key:
         kek = get_KEK()
         data = decrypt_text(data.decode(), kek)
 
@@ -278,7 +278,7 @@ def get_hashed_pass_from_keyring() -> str:
     hashed_pass = keyring.get_password(KEYRING_SERVICE_NAME, KEYRING_USERNAME)[HASH_SALT_LENGTH:]
     return hashed_pass
 
-def hash_password(password: str, gen_salt: bool = False) -> tuple[str]:
+def hash_password(password: str, gen_salt: bool = False) -> tuple[str, str]:
     salt = generate_salt() if gen_salt else get_salt_from_keyring()
 
     hashed_pass = hashlib.pbkdf2_hmac(
