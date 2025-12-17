@@ -1,90 +1,197 @@
-# Mini Password Manager
+# Password Manager (Tkinter, Python)
 
-[![Release](https://img.shields.io/github/v/release/amir-codes-here/password-manager?label=release)](https://github.com/amir-codes-here/password-manager/releases)
-[![License](https://img.shields.io/github/license/amir-codes-here/password-manager)](https://github.com/amir-codes-here/password-manager/blob/main/LICENSE)
-[![Issues](https://img.shields.io/github/issues/amir-codes-here/password-manager)](https://github.com/amir-codes-here/password-manager/issues)
+A secure, cross-platform desktop password manager written in **Python 3.12** using **Tkinter** for the GUI and **Fernet (cryptography)** for encryption. The application securely stores credentials in an encrypted local vault, protects access with a master password, and maintains automatic backup files for recovery.
 
-A secure, minimal, and user-friendly password manager intended for personal or small-team use. This repository contains the code, documentation, and tests for storing, encrypting, and retrieving credentials safely.
+---
 
-### Table of Contents
-- [Key Features](#key-features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Data Backup & Recovery](#data-backup--recovery)
-- [Security Notes](#security-notes)
-- [Contributing](#contributing)
-- [Contact](#contact)
-- [Acknowledgements](#acknowledgements)
+## Features
 
-## Key Features
-- Strong encryption of stored secrets (recommendations and configuration examples included).
-- Zero-knowledge or passphrase-based encryption model (adapt to your use-case).
-- Export/Import of encrypted vaults.
-- CLI for quick access and workflows (or a simple GUI/web UI if provided).
-- Extensible storage backends (file, SQLite, cloud providers).
-- Audit logging and optional secure clipboard handling.
+* **Encrypted password vault** using Fernet symmetric encryption
+* **Master password protection** (hashed and stored securely via OS keyring)
+* **Automatic backup & recovery** of vault and encryption key
+* **Cross-platform support** (Windows, macOS, Linux)
+* **Search, add, update, delete** stored passwords
+* **Strong password generator** with configurable length
+* **Clipboard copy support**
+* **Automatic logout after inactivity**
+* **Graceful shutdown handling** (updates backups on app close)
 
-## Getting Started
+---
 
-### Prerequisites
-- Git
-- The language runtime / package manager for this project (update the list below to match the repo):
-  - Node.js (>=14) and npm/yarn, or
-  - Python (>=3.8) and pip, or
-  - Go (>=1.18)
-- (Optional) A hardware-backed key (e.g., YubiKey) or OS keyring for additional security.
+## Screens / Application Tabs
 
-### Installation
-Clone the repo:
+* **Login / Set Password** – Secure entry point
+* **View** – Browse and copy saved passwords
+* **Add** – Store new credentials
+* **Update** – Modify existing entries
+* **Tools** – Strong password generator
+* **Settings** – Change master password
+
+---
+
+## Project Structure
+
+```text
+.
+├── run.py                 # Main Tkinter application
+├── _backend.py            # Encryption, storage, backup, and security logic
+├── README.md              # Project documentation
+└── requirements.txt       # Python dependencies
+```
+
+---
+
+## Security Design
+
+### Vault Encryption
+
+* All stored credentials are encrypted using **Fernet (AES + HMAC)**
+* Both keys and values are encrypted
+* Vault stored as encrypted JSON (`vault.json`)
+
+### Key Management
+
+* A randomly generated encryption key is stored encrypted on disk
+* The encryption key itself is protected using a **Key Encryption Key (KEK)**
+* The KEK is derived from hardware-specific identifiers (with a fallback)
+
+### Master Password
+
+* Never stored in plaintext
+* Hashed using **PBKDF2-HMAC-SHA256** with salt
+* Stored securely via the system keyring
+
+### Backups
+
+* Backup copies are automatically maintained for:
+
+  * Vault file
+  * Encryption key
+* Backups are restored automatically if primary files are missing
+* Backups are updated on **every clean application shutdown**
+
+---
+
+## File Locations (By OS)
+
+### Vault & Key Files
+
+| OS      | Vault Location                  | Key Location       |
+| ------- | ------------------------------- | ------------------ |
+| Windows | `%APPDATA%`                     | `%LOCALAPPDATA%`   |
+| macOS   | `~/Library/Application Support` | `~/Library/Caches` |
+| Linux   | `~/.config`                     | `~/.local/share`   |
+
+### Backup Files
+
+Stored in the system temporary directory:
+
+* `vault-bu.json`
+* `key.bin`
+
+---
+
+## Installation
+
+### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/amir-codes-here/password-manager.git
+git clone https://github.com/your-username/password-manager.git
 cd password-manager
 ```
 
-Install dependencies
+### 2. Create a Virtual Environment (Recommended)
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate    # Linux / macOS
+venv\Scripts\activate       # Windows
+```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### Quick Start
-simply run the python code in your terminal
+#### Required Packages
+
+* `cryptography`
+* `keyring`
+
+(Tkinter ships with standard Python distributions.)
+
+---
+
+## Running the Application
 
 ```bash
 python run.py
 ```
 
-## Usage
+On first launch:
 
-- In order to **save new passwords** to vault, visit the "Add" tab
-- In order to **view saved passwords** or **delete** one, visit the "View" tab
-- In order to **update an existing password**, visit the "Update" tab
-- In order to **change app's password**, visit the "Settings" tab
-- You can access a minimal and safe **password generation tool** in the "Tools" tab 
+* You will be prompted to create a **master password**
+* The encrypted vault and key files will be initialized automatically
 
-## Data Backup & Recovery
-- There is a backup vault and backup of the encryption key in this directory :
-  - For windows : Your `%TEMP%` folder
-  - For macOS : Probably `/var/folders/<random>/T` or `/tmp`
-  - For linux : Your `$TMPDIR` if set. otherwise probably `/tmp`
-- You can find the vault's backup file name and the encryption key's backup file name in `_backend.py` (`BACKUP_VAULT_FILE_NAME` and `BACKUP_KEY_FILE_NAME`)
-- The app will automatically recover lost data from the relative backup files, but it is recommended to have a copy of them somewhere safe.
+---
 
-## Security Notes
-- The app's password is encrypted and saved inside your OS credential manager via `keyring`. if by any chance that password is deleted, for security purposes, the app automatically deletes the vault, the encryption key and all backups completely and **all saved data will be lost forever!**
+## Usage Notes
 
-## Contributing
-Sadly, this is a personal, minimal project and contributions are not welcome.
+* **Closing the window** safely updates backup files
+* After **5 minutes of inactivity**, the app automatically returns to the login screen
+* Deleting the main vault files will trigger **automatic restore from backup** (if available)
 
-## Contact
-Maintainer: amir-codes-here
+---
 
-For feature requests, bug reports, and general discussion, please open an issue in the repository.
+## Development Notes
 
-## Acknowledgements
-Thanks to the open-source crypto and password-manager communities for prior art and guidance.
+### Graceful Shutdown Handling
 
+The application registers a `WM_DELETE_WINDOW` protocol handler to ensure backups are updated whenever the app exits:
+
+```python
+root.protocol("WM_DELETE_WINDOW", before_app_close)
+```
+
+### JSON Integrity
+
+Vault backups store the full JSON content to avoid corruption during restore.
+
+---
+
+## Limitations
+
+* Single-user local application
+* No cloud sync
+* Hardware-based KEK may change on some systems (fallback included)
+
+---
+
+## Roadmap / Possible Enhancements
+
+* Vault export/import
+* Encrypted cloud synchronization
+* Multi-profile support
+* Password strength validation
+* UI theming (dark mode)
+
+---
+
+## Disclaimer
+
+This project is intended for **educational and personal use**. While strong cryptographic primitives are used, it has **not undergone a formal security audit**. Do not rely on it for high-risk or enterprise-grade password storage without further review.
+
+---
+
+## License
+
+MIT License
+
+---
+
+## Author
+
+Developed by **Amir Jahani**
+
+If you find this project useful, feel free to fork, improve, or submit pull requests.
